@@ -10,6 +10,7 @@ import scala.concurrent.{Await, Future}
 object Maps {
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  /*
   val map1f = Future { Map01.ZoneMap }
   val map2f = Future { Map02.ZoneMap }
   val map3f = Future { Map03.ZoneMap }
@@ -33,20 +34,21 @@ object Maps {
   val map97f = Future { Map97.ZoneMap }
   val map98f = Future { Map98.ZoneMap }
   val map99f = Future { Map99.ZoneMap }
+*/
 
-  val map1 = Await.result(map1f, 30 seconds)
-  val map2 = Await.result(map2f, 30 seconds)
-  val map3 = Await.result(map3f, 30 seconds)
-  val map4 = Await.result(map4f, 30 seconds)
-  val map5 = Await.result(map5f, 30 seconds)
-  val map6 = Await.result(map6f, 30 seconds)
-  val map7 = Await.result(map7f, 30 seconds)
-  val map8 = Await.result(map8f, 30 seconds)
-  val map9 = Await.result(map9f, 30 seconds)
-  val map10 = Await.result(map10f, 30 seconds)
-  val map11 = Await.result(map11f, 30 seconds)
-  val map12 = Await.result(map12f, 30 seconds)
-  val map13 = Await.result(map13f, 30 seconds)
+  val map1 = Map01.ZoneMap //Await.result(map1f, 30 seconds)
+  val map2 = Map02.ZoneMap //Await.result(map2f, 30 seconds)
+  val map3 = Map03.ZoneMap //Await.result(map3f, 30 seconds)
+  val map4 = Map04.ZoneMap //Await.result(map4f, 30 seconds)
+  val map5 = Map05.ZoneMap //Await.result(map5f, 30 seconds)
+  val map6 = Map06.ZoneMap //Await.result(map6f, 30 seconds)
+  val map7 = Map07.ZoneMap //Await.result(map7f, 30 seconds)
+  val map8 = Map08.ZoneMap //Await.result(map8f, 30 seconds)
+  val map9 = Map09.ZoneMap //Await.result(map9f, 30 seconds)
+  val map10 = Map10.ZoneMap //Await.result(map10f, 30 seconds)
+  val map11 = Map11.ZoneMap //Await.result(map11f, 30 seconds)
+  val map12 = Map12.ZoneMap //Await.result(map12f, 30 seconds)
+  val map13 = Map13.ZoneMap //Await.result(map13f, 30 seconds)
 
   Projectiles(map1)
   Projectiles(map2)
@@ -74,12 +76,12 @@ object Maps {
     Projectiles(this)
   }
 
-  val ugd01 = Await.result(ugd01f, 30 seconds)
-  val ugd02 = Await.result(ugd02f, 30 seconds)
-  val ugd03 = Await.result(ugd03f, 30 seconds)
-  val ugd04 = Await.result(ugd04f, 30 seconds)
-  val ugd05 = Await.result(ugd05f, 30 seconds)
-  val ugd06 = Await.result(ugd06f, 30 seconds)
+  val ugd01 = Ugd01.ZoneMap //Await.result(ugd01f, 30 seconds)
+  val ugd02 = Ugd02.ZoneMap //Await.result(ugd02f, 30 seconds)
+  val ugd03 = Ugd03.ZoneMap //Await.result(ugd03f, 30 seconds)
+  val ugd04 = Ugd04.ZoneMap //Await.result(ugd04f, 30 seconds)
+  val ugd05 = Ugd05.ZoneMap //Await.result(ugd05f, 30 seconds)
+  val ugd06 = Ugd06.ZoneMap //Await.result(ugd06f, 30 seconds)
 
   Projectiles(ugd01)
   Projectiles(ugd02)
@@ -88,10 +90,10 @@ object Maps {
   Projectiles(ugd05)
   Projectiles(ugd06)
 
-  val map96 = Await.result(map96f, 30 seconds)
-  val map97 = Await.result(map97f, 30 seconds)
-  val map98 = Await.result(map98f, 30 seconds)
-  val map99 = Await.result(map99f, 30 seconds)
+  val map96 = Map96.ZoneMap //Await.result(map96f, 30 seconds)
+  val map97 = Map97.ZoneMap //Await.result(map97f, 30 seconds)
+  val map98 = Map98.ZoneMap //Await.result(map98f, 30 seconds)
+  val map99 = Map99.ZoneMap //Await.result(map99f, 30 seconds)
 
   Projectiles(map96)
   Projectiles(map97)
