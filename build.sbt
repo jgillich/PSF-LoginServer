@@ -3,7 +3,7 @@ import xerial.sbt.pack.PackPlugin._
 lazy val commonSettings = Seq(
   organization := "net.psforever",
   version := "1.0.2-SNAPSHOT",
-  scalaVersion := "2.12.11",
+  scalaVersion := "2.13.2",
   scalacOptions := Seq("-unchecked", "-feature", "-deprecation", "-encoding", "utf8", "-language:postfixOps"),
 
   // Quiet test options
