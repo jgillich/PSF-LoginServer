@@ -13,7 +13,7 @@ out/
 project/metals.sbt
 
 # User configs
-config/worldserver.ini
+config/application.conf
 pslogin/src/main/resources/user.conf
 
 # Log files
