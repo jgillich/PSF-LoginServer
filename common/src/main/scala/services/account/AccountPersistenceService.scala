@@ -8,6 +8,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import net.psforever.objects.guid.GUIDTask
 import net.psforever.objects._
+import net.psforever.objects.avatar.Avatar
 import net.psforever.objects.serverobject.mount.Mountable
 import net.psforever.objects.zones.Zone
 import net.psforever.types.Vector3
@@ -363,12 +364,12 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
         //our last body was turned into a corpse; just the avatar remains
         //TODO perform any last minute saving now ...
         AvatarLogout(avatar)
-        inZone.GUID(avatar.VehicleOwned) match {
+        inZone.GUID(avatar.vehicle) match {
           case Some(obj: Vehicle) if obj.OwnerName.contains(avatar.name) =>
             obj.Actor ! Vehicle.Ownership(None)
           case _ => ;
         }
-        taskResolver.tell(GUIDTask.UnregisterLocker(avatar.Locker)(inZone.GUID), context.parent)
+        taskResolver.tell(GUIDTask.UnregisterLocker(avatar.locker)(inZone.GUID), context.parent)
 
       case _ =>
       //user stalled during initial session, or was caught in between zone transfer
@@ -396,7 +397,7 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
     val parent = context.parent
     player.Position = Vector3.Zero
     player.Health = 0
-    inZone.GUID(player.VehicleOwned) match {
+    inZone.GUID(player.avatar.vehicle) match {
       case Some(vehicle: Vehicle) if vehicle.OwnerName.contains(player.Name) && vehicle.Actor != Default.Actor =>
         vehicle.Actor ! Vehicle.Ownership(None)
       case _ => ;
@@ -418,12 +419,10 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
     * @param avatar the avatar
     */
   def AvatarLogout(avatar: Avatar): Unit = {
-    val parent = context.parent
-    val charId = avatar.CharId
-    LivePlayerList.Remove(charId)
-    squadService.tell(Service.Leave(Some(charId.toString)), parent)
-    Deployables.Disown(inZone, avatar, parent)
-    inZone.Population.tell(Zone.Population.Leave(avatar), parent)
+    LivePlayerList.Remove(avatar.id)
+    squadService.tell(Service.Leave(Some(avatar.id.toString)), context.parent)
+    Deployables.Disown(inZone, avatar, context.parent)
+    inZone.Population.tell(Zone.Population.Leave(avatar), context.parent)
     log.info(s"logout of ${avatar.name}")
   }
 }

@@ -92,7 +92,7 @@ class CharacterDataTest extends Specification {
               char.cosmetics match {
                 case Some(c: Cosmetics) =>
                   c.Styles mustEqual Set(
-                    PersonalStyle.NoHelmet,
+                    PersonalStyle.Helmet,
                     PersonalStyle.Beret,
                     PersonalStyle.Sunglasses,
                     PersonalStyle.Earpiece
@@ -285,7 +285,7 @@ class CharacterDataTest extends Specification {
               char.cosmetics match {
                 case Some(c: Cosmetics) =>
                   c.Styles mustEqual Set(
-                    PersonalStyle.NoHelmet,
+                    PersonalStyle.Helmet,
                     PersonalStyle.Beret,
                     PersonalStyle.Sunglasses,
                     PersonalStyle.Earpiece

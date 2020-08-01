@@ -368,18 +368,18 @@ class PlayerTest extends Specification {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val player = Player(avatar)
 
-      player.BEP mustEqual avatar.BEP
-      avatar.BEP = 1002
-      player.BEP mustEqual avatar.BEP
+      player.BEP mustEqual avatar.bep
+      avatar.bep = 1002
+      player.BEP mustEqual avatar.bep
     }
 
     "command experience point values of the avatar" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val player = Player(avatar)
 
-      player.CEP mustEqual avatar.CEP
-      avatar.CEP = 1002
-      player.CEP mustEqual avatar.CEP
+      player.CEP mustEqual avatar.cep
+      avatar.cep = 1002
+      player.CEP mustEqual avatar.cep
     }
 
     "can get a quick summary of implant slots (default)" in {
@@ -549,7 +549,7 @@ class PlayerTest extends Specification {
       b1.isEmpty mustEqual true
       obj.PersonalStyleFeatures.isEmpty mustEqual true
 
-      avatar.BEP = 2286231 //BR24
+      avatar.bep = 2286231 //BR24
       val (a2, b2) = obj.AddToPersonalStyle(PersonalStyle.Beret)
       a2.isEmpty mustEqual true
       b2 match {
@@ -564,7 +564,7 @@ class PlayerTest extends Specification {
     "will lose cosmetic state" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val obj    = Player(avatar)
-      avatar.BEP = 2286231 //BR24
+      avatar.bep = 2286231 //BR24
       obj.AddToPersonalStyle(PersonalStyle.Beret)
       obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.Beret))) mustEqual true
       val (a2, b2) = obj.RemoveFromPersonalStyle(PersonalStyle.Beret)
@@ -594,20 +594,20 @@ class PlayerTest extends Specification {
     "toggle helmet" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val obj    = Player(avatar)
-      avatar.BEP = 2286231
+      avatar.bep = 2286231
       obj.PersonalStyleFeatures.isEmpty mustEqual true
       obj.ToggleHelmet
-      obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.NoHelmet))) mustEqual true
+      obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.Helmet))) mustEqual true
       obj.ToggleHelmet
       obj.PersonalStyleFeatures.contains(Cosmetics()) mustEqual true
       obj.ToggleHelmet
-      obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.NoHelmet))) mustEqual true
+      obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.Helmet))) mustEqual true
     }
 
     "toggle suglasses" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val obj    = Player(avatar)
-      avatar.BEP = 2286231
+      avatar.bep = 2286231
       obj.PersonalStyleFeatures.isEmpty mustEqual true
       obj.ToggleShades
       obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.Sunglasses))) mustEqual true
@@ -620,7 +620,7 @@ class PlayerTest extends Specification {
     "toggle earpiece" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val obj    = Player(avatar)
-      avatar.BEP = 2286231
+      avatar.bep = 2286231
       obj.PersonalStyleFeatures.isEmpty mustEqual true
       obj.ToggleEarpiece
       obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.Earpiece))) mustEqual true
@@ -633,7 +633,7 @@ class PlayerTest extends Specification {
     "toggle between brimmed cap and beret" in {
       val avatar = Avatar("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       val obj    = Player(avatar)
-      avatar.BEP = 2286231
+      avatar.bep = 2286231
       obj.PersonalStyleFeatures.isEmpty mustEqual true
       obj.ToggleHat
       obj.PersonalStyleFeatures.contains(Cosmetics(Set(PersonalStyle.BrimmedCap))) mustEqual true

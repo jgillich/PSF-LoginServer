@@ -55,16 +55,25 @@ class VehicleControl(vehicle: Vehicle)
   //make control actors belonging to utilities when making control actor belonging to vehicle
   vehicle.Utilities.foreach({ case (_, util) => util.Setup })
 
-  def MountableObject  = vehicle
-  def CargoObject      = vehicle
-  def JammableObject   = vehicle
-  def FactionObject    = vehicle
+  def MountableObject = vehicle
+
+  def CargoObject = vehicle
+
+  def JammableObject = vehicle
+
+  def FactionObject = vehicle
+
   def DeploymentObject = vehicle
+
   def DamageableObject = vehicle
+
   def RepairableObject = vehicle
-  def ContainerObject  = vehicle
+
+  def ContainerObject = vehicle
+
   def ChargeTransferObject = vehicle
-  if(vehicle.Definition == GlobalDefinitions.ant) {
+
+  if (vehicle.Definition == GlobalDefinitions.ant) {
     findChargeTargetFunc = Vehicles.FindANTChargingSource
     findDischargeTargetFunc = Vehicles.FindANTDischargingTarget
   }
@@ -111,11 +120,11 @@ class VehicleControl(vehicle: Vehicle)
             //if the driver seat, change ownership
             if (seat_num == 0 && !obj.OwnerName.contains(player.Name)) {
               //whatever vehicle was previously owned
-              vehicle.Zone.GUID(player.VehicleOwned) match {
+              vehicle.Zone.GUID(player.avatar.vehicle) match {
                 case Some(v: Vehicle) =>
                   v.Actor ! Vehicle.Ownership(None)
                 case _ =>
-                  player.VehicleOwned = None
+                  player.avatar.vehicle = None
               }
               LoseOwnership()       //lose our current ownership
               GainOwnership(player) //gain new ownership
@@ -333,17 +342,21 @@ class VehicleControl(vehicle: Vehicle)
     decayTimer = context.system.scheduler.scheduleOnce(5 seconds, self, VehicleControl.Deletion())
   }
 
-  def Disabled : Receive = checkBehavior
-    .orElse {
-      case msg : Deployment.TryUndeploy =>
-        deployBehavior.apply(msg)
+  def Disabled: Receive =
+    checkBehavior
+      .orElse {
+        case msg: Deployment.TryUndeploy =>
+          deployBehavior.apply(msg)
 
-      case VehicleControl.Deletion() =>
-        val zone = vehicle.Zone
-        zone.VehicleEvents ! VehicleServiceMessage(zone.Id, VehicleAction.UnloadVehicle(Service.defaultPlayerGUID, zone, vehicle, vehicle.GUID))
-        zone.Transport ! Zone.Vehicle.Despawn(vehicle)
-      case _ =>
-    }
+        case VehicleControl.Deletion() =>
+          val zone = vehicle.Zone
+          zone.VehicleEvents ! VehicleServiceMessage(
+            zone.Id,
+            VehicleAction.UnloadVehicle(Service.defaultPlayerGUID, zone, vehicle, vehicle.GUID)
+          )
+          zone.Transport ! Zone.Vehicle.Despawn(vehicle)
+        case _ =>
+      }
 
   override def TryJammerEffectActivate(target: Any, cause: ResolvedProjectile): Unit = {
     if (vehicle.MountedIn.isEmpty) {
@@ -446,25 +459,29 @@ class VehicleControl(vehicle: Vehicle)
     )
   }
 
-  override def TryDeploymentChange(obj : Deployment.DeploymentObject, state : DriveState.Value) : Boolean = {
+  override def TryDeploymentChange(obj: Deployment.DeploymentObject, state: DriveState.Value): Boolean = {
     VehicleControl.DeploymentAngleCheck(obj) && super.TryDeploymentChange(obj, state)
   }
 
-  override def DeploymentAction(obj : DeploymentObject, state : DriveState.Value, prevState : DriveState.Value) : DriveState.Value = {
+  override def DeploymentAction(
+      obj: DeploymentObject,
+      state: DriveState.Value,
+      prevState: DriveState.Value
+  ): DriveState.Value = {
     val out = super.DeploymentAction(obj, state, prevState)
     obj match {
-      case vehicle : Vehicle =>
-        val guid = vehicle.GUID
-        val zone = vehicle.Zone
+      case vehicle: Vehicle =>
+        val guid        = vehicle.GUID
+        val zone        = vehicle.Zone
         val zoneChannel = zone.Id
-        val GUID0 = Service.defaultPlayerGUID
+        val GUID0       = Service.defaultPlayerGUID
         val driverChannel = vehicle.Seats(0).Occupant match {
           case Some(tplayer) => tplayer.Name
-          case None => ""
+          case None          => ""
         }
         Vehicles.ReloadAccessPermissions(vehicle, vehicle.Faction.toString)
         //ams
-        if(vehicle.Definition == GlobalDefinitions.ams) {
+        if (vehicle.Definition == GlobalDefinitions.ams) {
           val events = zone.VehicleEvents
           state match {
             case DriveState.Deployed =>
@@ -474,29 +491,36 @@ class VehicleControl(vehicle: Vehicle)
           }
         }
         //ant
-        else if(vehicle.Definition == GlobalDefinitions.ant) {
+        else if (vehicle.Definition == GlobalDefinitions.ant) {
           state match {
             case DriveState.Deployed =>
               // Start ntu regeneration
               // If vehicle sends UseItemMessage with silo as target NTU regeneration will be disabled and orb particles will be disabled
-              context.system.scheduler.scheduleOnce(delay = 1000 milliseconds, vehicle.Actor, TransferBehavior.Charging(Ntu.Nanites))
+              context.system.scheduler.scheduleOnce(
+                delay = 1000 milliseconds,
+                vehicle.Actor,
+                TransferBehavior.Charging(Ntu.Nanites)
+              )
             case _ => ;
           }
         }
         //router
-        else if(vehicle.Definition == GlobalDefinitions.router) {
+        else if (vehicle.Definition == GlobalDefinitions.router) {
           val events = zone.LocalEvents
           state match {
             case DriveState.Deploying =>
               vehicle.Utility(UtilityType.internal_router_telepad_deployable) match {
-                case Some(util : Utility.InternalTelepad) =>
+                case Some(util: Utility.InternalTelepad) =>
                   util.Active = true
                 case _ =>
-                  //log.warn(s"DeploymentActivities: could not find internal telepad in router@${vehicle.GUID.guid} while $state")
+                //log.warn(s"DeploymentActivities: could not find internal telepad in router@${vehicle.GUID.guid} while $state")
               }
             case DriveState.Deployed =>
               //let the timer do all the work
-              events ! LocalServiceMessage(zoneChannel, LocalAction.ToggleTeleportSystem(GUID0, vehicle, TelepadLike.AppraiseTeleportationSystem(vehicle, zone)))
+              events ! LocalServiceMessage(
+                zoneChannel,
+                LocalAction.ToggleTeleportSystem(GUID0, vehicle, TelepadLike.AppraiseTeleportationSystem(vehicle, zone))
+              )
             case _ => ;
           }
         }
@@ -505,20 +529,24 @@ class VehicleControl(vehicle: Vehicle)
     out
   }
 
-  override def UndeploymentAction(obj : DeploymentObject, state : DriveState.Value, prevState : DriveState.Value) : DriveState.Value = {
-    val out = if(decaying) state else super.UndeploymentAction(obj, state, prevState)
+  override def UndeploymentAction(
+      obj: DeploymentObject,
+      state: DriveState.Value,
+      prevState: DriveState.Value
+  ): DriveState.Value = {
+    val out = if (decaying) state else super.UndeploymentAction(obj, state, prevState)
     obj match {
-      case vehicle : Vehicle =>
-        val guid = vehicle.GUID
-        val zone = vehicle.Zone
+      case vehicle: Vehicle =>
+        val guid  = vehicle.GUID
+        val zone  = vehicle.Zone
         val GUID0 = Service.defaultPlayerGUID
         val driverChannel = vehicle.Seats(0).Occupant match {
           case Some(tplayer) => tplayer.Name
-          case None => ""
+          case None          => ""
         }
         Vehicles.ReloadAccessPermissions(vehicle, vehicle.Faction.toString)
         //ams
-        if(vehicle.Definition == GlobalDefinitions.ams) {
+        if (vehicle.Definition == GlobalDefinitions.ams) {
           val events = zone.VehicleEvents
           state match {
             case DriveState.Undeploying =>
@@ -528,7 +556,7 @@ class VehicleControl(vehicle: Vehicle)
           }
         }
         //ant
-        else if(vehicle.Definition == GlobalDefinitions.ant) {
+        else if (vehicle.Definition == GlobalDefinitions.ant) {
           state match {
             case DriveState.Undeploying =>
               TryStopChargingEvent(vehicle)
@@ -536,7 +564,7 @@ class VehicleControl(vehicle: Vehicle)
           }
         }
         //router
-        else if(vehicle.Definition == GlobalDefinitions.router) {
+        else if (vehicle.Definition == GlobalDefinitions.router) {
           state match {
             case DriveState.Undeploying =>
               //deactivate internal router before trying to reset the system
@@ -575,7 +603,7 @@ object VehicleControl {
     }
   }
 
-  def DeploymentAngleCheck(obj : Deployment.DeploymentObject) : Boolean = {
+  def DeploymentAngleCheck(obj: Deployment.DeploymentObject): Boolean = {
     obj.Orientation.x <= 30 || obj.Orientation.x >= 330
   }
 }

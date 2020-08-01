@@ -90,14 +90,7 @@ class AvatarService(zone: Zone) extends Actor {
               AvatarResponse.EnvironmentalDamage(player_guid, source_guid, amount)
             )
           )
-        case AvatarAction.DeactivateImplantSlot(player_guid, slot) =>
-          AvatarEvents.publish(
-            AvatarServiceResponse(s"/$forChannel/Avatar", player_guid, AvatarResponse.DeactivateImplantSlot(slot))
-          )
-        case AvatarAction.ActivateImplantSlot(player_guid, slot) =>
-          AvatarEvents.publish(
-            AvatarServiceResponse(s"/$forChannel/Avatar", player_guid, AvatarResponse.ActivateImplantSlot(slot))
-          )
+
         case AvatarAction.DeployItem(player_guid, item) =>
           val definition = item.Definition
           val objectData = definition.Packet.ConstructorData(item).get

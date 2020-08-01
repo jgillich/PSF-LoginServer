@@ -1014,7 +1014,7 @@ class VehicleControlShieldsNotChargingTooEarlyTest extends ActorTest {
 //}
 
 object VehicleTest {
-  import net.psforever.objects.Avatar
+  import net.psforever.objects.avatar.Avatar
   import net.psforever.types.{CharacterGender, PlanetSideEmpire}
   val avatar1 = Avatar("test1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
   val avatar2 = Avatar("test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)

@@ -3,10 +3,11 @@ package objects.terminal
 
 import akka.actor.{ActorSystem, Props}
 import base.ActorTest
+import net.psforever.objects.avatar.Certification
 import net.psforever.objects.serverobject.structures.{Building, StructureType}
 import net.psforever.objects.serverobject.terminals.{Terminal, TerminalControl, TerminalDefinition}
 import net.psforever.objects.zones.Zone
-import net.psforever.objects.{Avatar, GlobalDefinitions, Player}
+import net.psforever.objects.{GlobalDefinitions, Player}
 import net.psforever.packet.game.ItemTransactionMessage
 import net.psforever.types._
 
@@ -44,7 +45,7 @@ class CertTerminalControl1Test extends ActorTest {
     val reply2 = reply.asInstanceOf[Terminal.TerminalMessage]
     assert(reply2.player == player)
     assert(reply2.msg == msg)
-    assert(reply2.response == Terminal.LearnCertification(CertificationType.MediumAssault))
+    assert(reply2.response == Terminal.LearnCertification(Certification.MediumAssault))
   }
 }
 
@@ -74,7 +75,7 @@ class CertTerminalControl3Test extends ActorTest {
     val reply2 = reply.asInstanceOf[Terminal.TerminalMessage]
     assert(reply2.player == player)
     assert(reply2.msg == msg)
-    assert(reply2.response == Terminal.SellCertification(CertificationType.MediumAssault))
+    assert(reply2.response == Terminal.SellCertification(Certification.MediumAssault))
   }
 }
 

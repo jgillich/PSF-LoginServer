@@ -3,7 +3,7 @@ package objects
 
 import akka.actor.{Actor, ActorRef, Props}
 import base.ActorTest
-import net.psforever.objects.{Avatar, Player}
+import net.psforever.objects.Player
 import net.psforever.objects.definition.{ObjectDefinition, SeatDefinition}
 import net.psforever.objects.serverobject.mount.{Mountable, MountableBehavior}
 import net.psforever.objects.serverobject.PlanetSideServerObject

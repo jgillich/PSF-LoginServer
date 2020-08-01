@@ -4,7 +4,8 @@ import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import net.psforever.actors.zone.ZoneActor
-import net.psforever.objects.{Avatar, Player, SpawnPoint, Vehicle}
+import net.psforever.objects.avatar.Avatar
+import net.psforever.objects.{Player, SpawnPoint, Vehicle}
 import net.psforever.objects.serverobject.structures.Building
 import net.psforever.objects.zones.Zone
 import net.psforever.types.{PlanetSideEmpire, PlanetSideGUID, SpawnGroup, Vector3}

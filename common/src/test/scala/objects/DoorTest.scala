@@ -3,7 +3,7 @@ package objects
 
 import akka.actor.{ActorSystem, Props}
 import base.ActorTest
-import net.psforever.objects.{Avatar, Default, GlobalDefinitions, Player}
+import net.psforever.objects.{Default, GlobalDefinitions, Player}
 import net.psforever.objects.serverobject.doors.{Door, DoorControl}
 import net.psforever.objects.serverobject.structures.{Building, StructureType}
 import net.psforever.objects.zones.Zone

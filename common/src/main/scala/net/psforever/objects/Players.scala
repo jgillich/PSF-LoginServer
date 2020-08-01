@@ -126,11 +126,11 @@ object Players {
       case Nil =>
         true
       case permissions if subtype != 0 =>
-        val certs = player.Certifications
+        val certs = player.avatar.certifications
         certs.intersect(permissions.toSet).nonEmpty &&
         certs.intersect(InfantryLoadout.DetermineSubtypeC(subtype)).nonEmpty
       case permissions =>
-        player.Certifications.intersect(permissions.toSet).nonEmpty
+        player.avatar.certifications.intersect(permissions.toSet).nonEmpty
     }
   }
 }

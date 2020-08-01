@@ -14,7 +14,7 @@ import net.psforever.objects.serverobject.terminals.{
   Terminal
 }
 import net.psforever.objects.zones.{Zone, ZoneMap}
-import net.psforever.objects.{Avatar, GlobalDefinitions, Player}
+import net.psforever.objects.{GlobalDefinitions, Player}
 import net.psforever.types.{CharacterGender, CharacterVoice, PlanetSideEmpire, PlanetSideGUID}
 import org.specs2.mutable.Specification
 import services.Service

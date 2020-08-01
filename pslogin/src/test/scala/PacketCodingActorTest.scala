@@ -542,13 +542,13 @@ class PacketCodingActorITest extends ActorTest {
     100,
     None,
     List(
-      CertificationType.StandardAssault,
-      CertificationType.MediumAssault,
-      CertificationType.ATV,
-      CertificationType.Harasser,
-      CertificationType.StandardExoSuit,
-      CertificationType.AgileExoSuit,
-      CertificationType.ReinforcedExoSuit
+      Certification.StandardAssault,
+      Certification.MediumAssault,
+      Certification.ATV,
+      Certification.Harasser,
+      Certification.StandardExoSuit,
+      Certification.AgileExoSuit,
+      Certification.ReinforcedExoSuit
     ),
     List(),
     List(),
@@ -696,13 +696,13 @@ class PacketCodingActorKTest extends ActorTest {
     0L,
     List(0, 0, 0, 0, 0, 0),
     List(
-      CertificationType.StandardAssault,
-      CertificationType.MediumAssault,
-      CertificationType.ATV,
-      CertificationType.Harasser,
-      CertificationType.StandardExoSuit,
-      CertificationType.AgileExoSuit,
-      CertificationType.ReinforcedExoSuit
+      Certification.StandardAssault,
+      Certification.MediumAssault,
+      Certification.ATV,
+      Certification.Harasser,
+      Certification.StandardExoSuit,
+      Certification.AgileExoSuit,
+      Certification.ReinforcedExoSuit
     )
   )
   val bb: (Long, Option[Int]) => DetailedCharacterB = DetailedCharacterB(

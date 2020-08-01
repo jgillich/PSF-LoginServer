@@ -4,7 +4,7 @@ package objects
 import akka.actor.Props
 import akka.testkit.TestProbe
 import base.ActorTest
-import net.psforever.objects.{Avatar, Default, GlobalDefinitions, Player, Tool}
+import net.psforever.objects.{Default, GlobalDefinitions, Player, Tool}
 import net.psforever.objects.definition.ToolDefinition
 import net.psforever.objects.guid.NumberPoolHub
 import net.psforever.objects.guid.source.LimitedNumberSource

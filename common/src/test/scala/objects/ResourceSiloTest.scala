@@ -9,7 +9,7 @@ import net.psforever.actors.zone.{BuildingActor, ZoneActor}
 import net.psforever.objects.guid.{NumberPoolHub, TaskResolver}
 import net.psforever.objects.guid.source.LimitedNumberSource
 import net.psforever.objects.serverobject.CommonMessages
-import net.psforever.objects.{Avatar, GlobalDefinitions, Ntu, Player, Vehicle}
+import net.psforever.objects.{GlobalDefinitions, Ntu, Player, Vehicle}
 import net.psforever.objects.serverobject.resourcesilo.{ResourceSilo, ResourceSiloControl, ResourceSiloDefinition}
 import net.psforever.objects.serverobject.structures.{Building, StructureType}
 import net.psforever.objects.serverobject.transfer.TransferBehavior
@@ -20,6 +20,7 @@ import org.specs2.mutable.Specification
 import services.ServiceManager
 import services.avatar.{AvatarAction, AvatarServiceMessage}
 import akka.actor.typed.scaladsl.adapter._
+import net.psforever.objects.avatar.Avatar
 
 import scala.concurrent.duration._
 

@@ -4,6 +4,7 @@ package objects
 import akka.actor.Props
 import akka.testkit.TestProbe
 import base.ActorTest
+import net.psforever.objects.ObjectType.Avatar
 import net.psforever.objects._
 import net.psforever.objects.ballistics._
 import net.psforever.objects.equipment.JammableUnit
@@ -542,16 +543,17 @@ class DamageableMountableDamageTest extends ActorTest {
   val guid = new NumberPoolHub(new LimitedNumberSource(10))
   val zone = new Zone("test", new ZoneMap("test"), 0) {
     override def SetupNumberPools() = {}
+
     GUID(guid)
   }
   val building = Building("test-building", 1, 1, zone, StructureType.Facility) //guid=1
   val mech     = ImplantTerminalMech(GlobalDefinitions.implant_terminal_mech)  //guid=2
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player1.Spawn
   player1.Position = Vector3(2, 2, 2)
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn
   guid.register(building, 1)
   guid.register(mech, 2)
@@ -633,18 +635,19 @@ class DamageableMountableDestroyTest extends ActorTest {
   val guid = new NumberPoolHub(new LimitedNumberSource(10))
   val zone = new Zone("test", new ZoneMap("test"), 0) {
     override def SetupNumberPools() = {}
+
     GUID(guid)
   }
   val building = Building("test-building", 1, 1, zone, StructureType.Facility) //guid=1
   val mech     = ImplantTerminalMech(GlobalDefinitions.implant_terminal_mech)  //guid=2
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player1.Spawn
   player1.Position = Vector3(2, 2, 2)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -735,13 +738,13 @@ class DamageableWeaponTurretDamageTest extends ActorTest {
   turret.Zone = zone
   turret.Position = Vector3(1, 0, 0)
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player1.Spawn
   player1.Position = Vector3(2, 2, 2)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -830,13 +833,13 @@ class DamageableWeaponTurretJammerTest extends ActorTest {
   val turretWeapon = turret.Weapons.values.head.Equipment.get.asInstanceOf[Tool]
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player1.Spawn
   player1.Position = Vector3(2, 2, 2)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -927,13 +930,13 @@ class DamageableWeaponTurretDestructionTest extends ActorTest {
   val turretWeapon = turret.Weapons.values.head.Equipment.get.asInstanceOf[Tool]
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player1.Spawn
   player1.Position = Vector3(2, 2, 2)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -1073,13 +1076,13 @@ class DamageableVehicleDamageTest extends ActorTest {
   atv.Position = Vector3(1, 0, 0)
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
   player1.Spawn
   player1.Position = Vector3(2, 0, 0)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -1184,18 +1187,18 @@ class DamageableVehicleDamageMountedTest extends ActorTest {
   atv.Actor = system.actorOf(Props(classOf[VehicleControl], atv), "atv-control")
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
   player1.Spawn
   player1.Position = Vector3(2, 0, 0)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
   val player3 =
-    Player(Avatar("TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=10
+    Player(Avatar(0, "TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=10
   player3.Spawn
   val player3Probe = TestProbe()
   player3.Actor = player3Probe.ref
@@ -1331,18 +1334,18 @@ class DamageableVehicleJammeringMountedTest extends ActorTest {
   lodestar.Position = Vector3(1, 0, 0)
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=7
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=7
   player1.Spawn
   player1.Position = Vector3(2, 0, 0)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=8
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=8
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
   val player3 =
-    Player(Avatar("TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=9
+    Player(Avatar(0, "TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=9
   player3.Spawn
   val player3Probe = TestProbe()
   player3.Actor = player3Probe.ref
@@ -1441,13 +1444,13 @@ class DamageableVehicleDestroyTest extends ActorTest {
   val atvWeapon = atv.Weapons(1).Equipment.get.asInstanceOf[Tool] //guid=4 & 5
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=2
   player1.Spawn
   player1.Position = Vector3(2, 0, 0)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=3
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
@@ -1547,18 +1550,18 @@ class DamageableVehicleDestroyMountedTest extends ActorTest {
   lodestar.Position = Vector3(1, 0, 0)
 
   val player1 =
-    Player(Avatar("TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=7
+    Player(Avatar(0, "TestCharacter1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=7
   player1.Spawn
   player1.Position = Vector3(2, 0, 0)
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar("TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=8
+    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=8
   player2.Spawn
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref
   val player3 =
-    Player(Avatar("TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=9
+    Player(Avatar(0, "TestCharacter3", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=9
   player3.Spawn
   val player3Probe = TestProbe()
   player3.Actor = player3Probe.ref

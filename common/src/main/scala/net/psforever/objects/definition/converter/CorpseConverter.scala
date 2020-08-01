@@ -2,6 +2,7 @@
 package net.psforever.objects.definition.converter
 
 import net.psforever.objects.Player
+import net.psforever.objects.avatar.Certification
 import net.psforever.objects.equipment.{Equipment, EquipmentSlot}
 import net.psforever.packet.game.objectcreate._
 import net.psforever.types.{PlanetSideGUID, _}
@@ -96,7 +97,7 @@ class CorpseConverter extends AvatarConverter {
       0,
       0L,
       List(0, 0, 0, 0, 0, 0),
-      certs = List.empty[CertificationType.Value]
+      certs = List.empty[Certification]
     )
     val bb: (Long, Option[Int]) => DetailedCharacterB = DetailedCharacterB(
       None,

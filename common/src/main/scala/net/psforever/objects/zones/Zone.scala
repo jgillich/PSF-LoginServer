@@ -35,7 +35,9 @@ import scalax.collection.GraphEdge._
 
 import scala.util.Try
 import akka.actor.typed
+import net.psforever.actors.session.AvatarActor
 import net.psforever.actors.zone.ZoneActor
+import net.psforever.objects.avatar.Avatar
 import net.psforever.objects.serverobject.tube.SpawnTube
 import net.psforever.objects.vehicles.UtilityType
 
@@ -97,7 +99,7 @@ class Zone(private val zoneId: String, val map: ZoneMap, zoneNumber: Int) {
 
   /**
     */
-  private val players: TrieMap[Avatar, Option[Player]] = TrieMap[Avatar, Option[Player]]()
+  private val players: TrieMap[Int, Option[Player]] = TrieMap[Int, Option[Player]]()
 
   /**
     */
@@ -120,7 +122,7 @@ class Zone(private val zoneId: String, val map: ZoneMap, zoneNumber: Int) {
 
   /**
     */
-  private var hotspots: ListBuffer[HotSpotInfo] = ListBuffer[HotSpotInfo]()
+  private val hotspots: ListBuffer[HotSpotInfo] = ListBuffer[HotSpotInfo]()
 
   /**
     */
@@ -529,7 +531,7 @@ class Zone(private val zoneId: String, val map: ZoneMap, zoneNumber: Int) {
 
   def Vehicles: List[Vehicle] = vehicles.toList
 
-  def Players: List[Avatar] = players.keys.toList
+  def Players: List[Avatar] = players.values.flatten.map(_.avatar).toList
 
   def LivePlayers: List[Player] = players.values.collect({ case Some(tplayer) => tplayer }).toList
 
@@ -832,12 +834,13 @@ object Zone {
 
     /**
       * Message that instructs the zone to disassociate a `Player` from this `Actor`.
+      *
       * @see `PlayerAlreadySpawned`<br>
-      *       `PlayerCanNotSpawn`
+      *      `PlayerCanNotSpawn`
       * @param avatar the `Avatar` object
       * @param player the `Player` object
       */
-    final case class Spawn(avatar: Avatar, player: Player)
+    final case class Spawn(avatar: Avatar, player: Player, avatarActor: typed.ActorRef[AvatarActor.Command])
 
     /**
       * Message that instructs the zone to disassociate a `Player` from this `Actor`.
@@ -1009,8 +1012,8 @@ object Zone {
           }).orElse(continent.Vehicles.find(_.Find(guid).nonEmpty) match {
             case Some(vehicle) => Some((vehicle, vehicle.Find(guid)))
             case _             => None
-          }).orElse(continent.Players.find(_.Locker.Find(guid).nonEmpty) match {
-            case Some(avatar) => Some((avatar.Locker, avatar.Locker.Find(guid)))
+          }).orElse(continent.Players.find(_.locker.Find(guid).nonEmpty) match {
+            case Some(avatar) => Some((avatar.locker, avatar.locker.Find(guid)))
             case _            => None
           }) match {
             case Some((obj, Some(index))) =>

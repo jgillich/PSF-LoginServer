@@ -7,60 +7,60 @@ class CosmeticsTest extends Specification {
     "construct" in {
       Cosmetics()
       Cosmetics(3)
-      Cosmetics(PersonalStyle.NoHelmet)
-      Cosmetics(Set(PersonalStyle.NoHelmet))
+      Cosmetics(PersonalStyle.Helmet)
+      Cosmetics(Set(PersonalStyle.Helmet))
       Cosmetics(true, false, false, false, false)
       ok
     }
 
     "translate into a numeric value" in {
-      Cosmetics().pstyles mustEqual 0
-      Cosmetics(3).pstyles mustEqual 3
-      Cosmetics(PersonalStyle.NoHelmet).pstyles mustEqual PersonalStyle.NoHelmet.id
+      Cosmetics().value mustEqual 0
+      Cosmetics(3).value mustEqual 3
+      Cosmetics(PersonalStyle.Helmet).value mustEqual PersonalStyle.Helmet.id
       Cosmetics(
-        Set(PersonalStyle.NoHelmet, PersonalStyle.Earpiece)
-      ).pstyles mustEqual PersonalStyle.NoHelmet.id + PersonalStyle.Earpiece.id
-      Cosmetics(true, false, false, false, false).pstyles mustEqual PersonalStyle.NoHelmet.id
+        Set(PersonalStyle.Helmet, PersonalStyle.Earpiece)
+      ).value mustEqual PersonalStyle.Helmet.id + PersonalStyle.Earpiece.id
+      Cosmetics(true, false, false, false, false).value mustEqual PersonalStyle.Helmet.id
     }
 
     "translate into a list of cosmetic style tokens" in {
       Cosmetics().Styles mustEqual Set()
       Cosmetics(3).Styles mustEqual Set(PersonalStyle.BrimmedCap, PersonalStyle.Earpiece)
-      Cosmetics(PersonalStyle.NoHelmet).Styles mustEqual Set(PersonalStyle.NoHelmet)
-      Cosmetics(Set(PersonalStyle.NoHelmet)).Styles mustEqual Set(PersonalStyle.NoHelmet)
-      Cosmetics(true, false, false, false, false).Styles mustEqual Set(PersonalStyle.NoHelmet)
+      Cosmetics(PersonalStyle.Helmet).Styles mustEqual Set(PersonalStyle.Helmet)
+      Cosmetics(Set(PersonalStyle.Helmet)).Styles mustEqual Set(PersonalStyle.Helmet)
+      Cosmetics(true, false, false, false, false).Styles mustEqual Set(PersonalStyle.Helmet)
     }
 
     "report containing specific values only" in {
-      val cos = Cosmetics(Set(PersonalStyle.NoHelmet, PersonalStyle.Earpiece))
-      cos.contains(PersonalStyle.NoHelmet) mustEqual true
+      val cos = Cosmetics(Set(PersonalStyle.Helmet, PersonalStyle.Earpiece))
+      cos.contains(PersonalStyle.Helmet) mustEqual true
       cos.contains(PersonalStyle.Beret) mustEqual false
     }
 
     "add values" in {
       val cos = Cosmetics()
       cos.Styles mustEqual Set()
-      val cos1 = cos + PersonalStyle.NoHelmet
-      cos1.Styles mustEqual Set(PersonalStyle.NoHelmet)
+      val cos1 = cos + PersonalStyle.Helmet
+      cos1.Styles mustEqual Set(PersonalStyle.Helmet)
       cos1.Styles mustNotEqual cos.Styles
       val cos2 = cos1 + PersonalStyle.Beret
-      cos2.Styles mustEqual Set(PersonalStyle.NoHelmet, PersonalStyle.Beret)
+      cos2.Styles mustEqual Set(PersonalStyle.Helmet, PersonalStyle.Beret)
       cos2.Styles mustNotEqual cos.Styles
       cos2.Styles mustNotEqual cos1.Styles
     }
 
     "can not add already included values" in {
-      val cos = Cosmetics(Set(PersonalStyle.NoHelmet, PersonalStyle.Beret))
-      cos.Styles mustEqual Set(PersonalStyle.NoHelmet, PersonalStyle.Beret)
+      val cos = Cosmetics(Set(PersonalStyle.Helmet, PersonalStyle.Beret))
+      cos.Styles mustEqual Set(PersonalStyle.Helmet, PersonalStyle.Beret)
       val cos1 = cos + PersonalStyle.Beret
-      cos1.Styles mustEqual Set(PersonalStyle.NoHelmet, PersonalStyle.Beret)
+      cos1.Styles mustEqual Set(PersonalStyle.Helmet, PersonalStyle.Beret)
       cos ne cos1 mustEqual true
     }
 
     "remove values" in {
-      val cos = Cosmetics(Set(PersonalStyle.NoHelmet, PersonalStyle.Beret))
-      cos.Styles mustEqual Set(PersonalStyle.NoHelmet, PersonalStyle.Beret)
-      val cos1 = cos - PersonalStyle.NoHelmet
+      val cos = Cosmetics(Set(PersonalStyle.Helmet, PersonalStyle.Beret))
+      cos.Styles mustEqual Set(PersonalStyle.Helmet, PersonalStyle.Beret)
+      val cos1 = cos - PersonalStyle.Helmet
       cos1.Styles mustEqual Set(PersonalStyle.Beret)
       cos1.Styles mustNotEqual cos.Styles
       val cos2 = cos1 - PersonalStyle.Beret
@@ -70,16 +70,16 @@ class CosmeticsTest extends Specification {
     }
 
     "can not remove un-included or already excluded values" in {
-      val cos = Cosmetics(Set(PersonalStyle.NoHelmet, PersonalStyle.Beret))
-      cos.Styles mustEqual Set(PersonalStyle.NoHelmet, PersonalStyle.Beret)
+      val cos = Cosmetics(Set(PersonalStyle.Helmet, PersonalStyle.Beret))
+      cos.Styles mustEqual Set(PersonalStyle.Helmet, PersonalStyle.Beret)
       val cos1 = cos - PersonalStyle.Beret
-      cos1.Styles mustEqual Set(PersonalStyle.NoHelmet)
+      cos1.Styles mustEqual Set(PersonalStyle.Helmet)
 
       val cos2 = cos - PersonalStyle.Beret //again
-      cos2.Styles mustEqual Set(PersonalStyle.NoHelmet)
+      cos2.Styles mustEqual Set(PersonalStyle.Helmet)
 
       val cos3 = cos1 - PersonalStyle.Earpiece
-      cos3.Styles mustEqual Set(PersonalStyle.NoHelmet)
+      cos3.Styles mustEqual Set(PersonalStyle.Helmet)
     }
   }
 }

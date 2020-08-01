@@ -33,7 +33,7 @@ class AccountIntermediaryService extends Actor {
     // Called by the LoginSessionActor
     case StoreAccountData(token, account) =>
       accountsByToken += (token -> account)
-      log.info(s"Storing intermediary account data for ${account.AccountId}")
+      log.info(s"Storing intermediary account data for ${account.id}")
 
     // Called by the WorldSessionActor
     case RetrieveAccountData(token) =>

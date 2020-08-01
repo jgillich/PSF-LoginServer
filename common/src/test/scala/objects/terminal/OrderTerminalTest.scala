@@ -5,6 +5,7 @@ import net.psforever.objects.serverobject.structures.{Building, StructureType}
 import net.psforever.objects.serverobject.terminals.Terminal
 import net.psforever.objects.zones.Zone
 import net.psforever.objects._
+import net.psforever.objects.avatar.Certification
 import net.psforever.packet.game.ItemTransactionMessage
 import net.psforever.types._
 import org.specs2.mutable.Specification
@@ -179,7 +180,7 @@ class OrderTerminalTest extends Specification {
     "player can learn a certification ('medium_assault')" in {
       val msg =
         ItemTransactionMessage(PlanetSideGUID(1), TransactionType.Learn, 0, "medium_assault", 0, PlanetSideGUID(0))
-      terminal.Request(player, msg) mustEqual Terminal.LearnCertification(CertificationType.MediumAssault)
+      terminal.Request(player, msg) mustEqual Terminal.LearnCertification(Certification.MediumAssault)
     }
 
     "player can not learn a fake certification ('juggling')" in {
@@ -190,7 +191,7 @@ class OrderTerminalTest extends Specification {
     "player can forget a certification ('medium_assault')" in {
       val msg =
         ItemTransactionMessage(PlanetSideGUID(1), TransactionType.Sell, 0, "medium_assault", 0, PlanetSideGUID(0))
-      terminal.Request(player, msg) mustEqual Terminal.SellCertification(CertificationType.MediumAssault)
+      terminal.Request(player, msg) mustEqual Terminal.SellCertification(Certification.MediumAssault)
     }
 
     "player can not forget a fake certification ('juggling')" in {

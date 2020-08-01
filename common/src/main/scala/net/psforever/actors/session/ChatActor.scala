@@ -5,6 +5,7 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.{ActorRef, Behavior, PostStop, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, StashBuffer}
 import net.psforever.actors.zone.BuildingActor
+import net.psforever.objects.avatar.{BattleRank, CommandRank, Cosmetic}
 import net.psforever.objects.serverobject.pad.{VehicleSpawnControl, VehicleSpawnPad}
 import net.psforever.objects.{Default, GlobalDefinitions, Player, Session}
 import net.psforever.objects.serverobject.resourcesilo.ResourceSilo
@@ -18,15 +19,18 @@ import net.psforever.zones.Zones
 import services.chat.ChatService
 import services.chat.ChatService.ChatChannel
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object ChatActor {
-  def apply(sessionActor: ActorRef[SessionActor.Command]): Behavior[Command] =
+  def apply(
+      sessionActor: ActorRef[SessionActor.Command],
+      avatarActor: ActorRef[AvatarActor.Command]
+  ): Behavior[Command] =
     Behaviors
       .supervise[Command] {
         Behaviors.withStash(100) { buffer =>
-          Behaviors.setup(context => new ChatActor(context, buffer, sessionActor).start())
+          Behaviors.setup(context => new ChatActor(context, buffer, sessionActor, avatarActor).start())
         }
       }
       .onFailure[Exception](SupervisorStrategy.restart)
@@ -45,10 +49,13 @@ object ChatActor {
 class ChatActor(
     context: ActorContext[ChatActor.Command],
     buffer: StashBuffer[ChatActor.Command],
-    sessionActor: ActorRef[SessionActor.Command]
+    sessionActor: ActorRef[SessionActor.Command],
+    avatarActor: ActorRef[AvatarActor.Command]
 ) {
 
   import ChatActor._
+
+  implicit val ec: ExecutionContextExecutor = context.executionContext
 
   private[this] val log                                  = org.log4s.getLogger
   var channels: List[ChatChannel]                        = List()
@@ -124,7 +131,7 @@ class ChatActor(
         log.info("Chat: " + message)
 
         (message.messageType, message.recipient.trim, message.contents.trim) match {
-          case (CMT_FLY, recipient, contents) if session.admin =>
+          case (CMT_FLY, recipient, contents) if session.account.gm =>
             val flying = contents match {
               case "on"  => true
               case "off" => false
@@ -148,7 +155,7 @@ class ChatActor(
               else 50
             sessionActor ! SessionActor.SetConnectionState(connectionState)
 
-          case (CMT_SPEED, recipient, contents) =>
+          case (CMT_SPEED, recipient, contents) if session.account.gm =>
             val speed =
               try {
                 contents.toFloat
@@ -159,7 +166,7 @@ class ChatActor(
             sessionActor ! SessionActor.SetSpeed(speed)
             sessionActor ! SessionActor.SendResponse(message.copy(contents = f"$speed%.3f"))
 
-          case (CMT_TOGGLESPECTATORMODE, _, contents) if session.admin =>
+          case (CMT_TOGGLESPECTATORMODE, _, contents) if session.account.gm =>
             val spectator = contents match {
               case "on"  => true
               case "off" => false
@@ -272,7 +279,7 @@ class ChatActor(
           /** Messages starting with ! are custom chat commands */
           case (messageType, recipient, contents) if contents.startsWith("!") =>
             (messageType, recipient, contents) match {
-              case (_, _, contents) if contents.startsWith("!whitetext ") && session.admin =>
+              case (_, _, contents) if contents.startsWith("!whitetext ") && session.account.gm =>
                 chatService ! ChatService.Message(
                   session,
                   ChatMsg(UNK_227, true, "", contents.replace("!whitetext ", ""), None),
@@ -333,7 +340,7 @@ class ChatActor(
                     )
                 }
 
-              case (_, _, contents) if session.admin && contents.startsWith("!kick") =>
+              case (_, _, contents) if session.account.gm && contents.startsWith("!kick") =>
                 val input = contents.split("\\s+").drop(1)
                 if (input.length > 0) {
                   val numRegex = raw"(\d+)".r
@@ -365,7 +372,7 @@ class ChatActor(
                   }
                 }
 
-              case (_, _, contents) if contents.startsWith("!ntu") && session.admin =>
+              case (_, _, contents) if contents.startsWith("!ntu") && session.account.gm =>
                 session.zone.Buildings.values.foreach(building =>
                   building.Amenities.foreach(amenity =>
                     amenity.Definition match {
@@ -379,12 +386,11 @@ class ChatActor(
                     }
                   )
                 )
-
               case _ =>
               // unknown ! commands are ignored
             }
 
-          case (CMT_CAPTUREBASE, _, contents) if session.admin =>
+          case (CMT_CAPTUREBASE, _, contents) if session.account.gm =>
             val args = contents.split(" ").filter(_ != "")
 
             val (faction, factionPos) = args.zipWithIndex
@@ -496,32 +502,26 @@ class ChatActor(
                 )
               case _ =>
                 sessionActor ! SessionActor.SendResponse(
-                  ChatMsg(
-                    UNK_229,
-                    true,
-                    "",
-                    "usage: /capturebase [[<empire>|none [<timer>]] | [<building name> [<empire>|none [timer]]] | [all [<empire>|none]]",
-                    None
-                  )
+                  message.copy(messageType = UNK_229, contents = "@@CMT_CAPTUREBASE_usage")
                 )
             }
 
           case (CMT_GMBROADCAST | CMT_GMBROADCAST_NC | CMT_GMBROADCAST_VS | CMT_GMBROADCAST_TR, _, _)
-              if session.admin =>
+              if session.account.gm =>
             chatService ! ChatService.Message(
               session,
               message.copy(recipient = session.player.Name),
               ChatChannel.Default()
             )
 
-          case (CMT_GMTELL, _, _) if session.admin =>
+          case (CMT_GMTELL, _, _) if session.account.gm =>
             chatService ! ChatService.Message(
               session,
               message.copy(recipient = session.player.Name),
               ChatChannel.Default()
             )
 
-          case (CMT_GMBROADCASTPOPUP, _, _) if session.admin =>
+          case (CMT_GMBROADCASTPOPUP, _, _) if session.account.gm =>
             chatService ! ChatService.Message(
               session,
               message.copy(recipient = session.player.Name),
@@ -583,7 +583,7 @@ class ChatActor(
               ChatChannel.Default()
             )
 
-          case (CMT_COMMAND, _, _) if session.admin =>
+          case (CMT_COMMAND, _, _) if session.account.gm =>
             chatService ! ChatService.Message(
               session,
               message.copy(recipient = session.player.Name),
@@ -593,7 +593,7 @@ class ChatActor(
           case (CMT_NOTE, _, _) =>
             chatService ! ChatService.Message(session, message, ChatChannel.Default())
 
-          case (CMT_SILENCE, _, _) if session.admin =>
+          case (CMT_SILENCE, _, _) if session.account.gm =>
             chatService ! ChatService.Message(session, message, ChatChannel.Default())
 
           case (CMT_SQUAD, _, _) =>
@@ -627,7 +627,7 @@ class ChatActor(
               ChatMsg(ChatMessageType.CMT_WHO, true, "", "VS online : " + popVS + " on " + contName, None)
             )
 
-          case (CMT_ZONE, _, contents) if session.admin =>
+          case (CMT_ZONE, _, contents) if session.account.gm =>
             val buffer = contents.toLowerCase.split("\\s+")
             val (zone, gate, list) = (buffer.lift(0), buffer.lift(1)) match {
               case (Some("-list"), None) =>
@@ -660,11 +660,11 @@ class ChatActor(
                 )
               case (_, _, _) if buffer.isEmpty || buffer(0).equals("-help") =>
                 sessionActor ! SessionActor.SendResponse(
-                  ChatMsg(UNK_229, true, "", "usage: /zone <zone> [gatename] | [-list]", None)
+                  message.copy(messageType = UNK_229, contents = "@CMT_ZONE_usage")
                 )
             }
 
-          case (CMT_WARP, _, contents) if session.admin =>
+          case (CMT_WARP, _, contents) if session.account.gm =>
             val buffer = contents.toLowerCase.split("\\s+")
             val (coordinates, waypoint) = (buffer.lift(0), buffer.lift(1), buffer.lift(2)) match {
               case (Some(x), Some(y), Some(z))            => (Some(x, y, z), None)
@@ -689,15 +689,133 @@ class ChatActor(
                 }
               case _ =>
                 sessionActor ! SessionActor.SendResponse(
-                  ChatMsg(
-                    UNK_229,
-                    true,
-                    "",
-                    s"usage: /warp <x><y><z> OR /warp to <character> OR /warp near <object> OR /warp above <object> OR /warp waypoint",
-                    None
-                  )
+                  message.copy(messageType = UNK_229, contents = "@CMT_WARP_usage")
                 )
             }
+
+          case (CMT_SETBATTLERANK, _, contents) /* if session.account.gm */ =>
+            val buffer = contents.toLowerCase.split("\\s+")
+            val (target, rank) = (buffer.lift(0), buffer.lift(1)) match {
+              case (Some(target), Some(rank)) if target == session.avatar.name =>
+                rank.toIntOption match {
+                  case Some(rank) => (None, BattleRank.withValueOpt(rank))
+                  case None       => (None, None)
+                }
+              case (Some(target), Some(rank)) =>
+                // picking other targets is not supported for now
+                (None, None)
+              case (Some(rank), None) =>
+                rank.toIntOption match {
+                  case Some(rank) => (None, BattleRank.withValueOpt(rank))
+                  case None       => (None, None)
+                }
+              case _ => (None, None)
+            }
+            (target, rank) match {
+              case (_, Some(rank)) =>
+                avatarActor ! AvatarActor.SetBep(rank.experience)
+                sessionActor ! SessionActor.SendResponse(message.copy(contents = "@AckSuccessSetBattleRank"))
+              case _ =>
+                sessionActor ! SessionActor.SendResponse(
+                  message.copy(messageType = UNK_229, contents = "@CMT_SETBATTLERANK_usage")
+                )
+            }
+
+          case (CMT_SETCOMMANDRANK, _, contents) if session.account.gm =>
+            val buffer = contents.toLowerCase.split("\\s+")
+            val (target, rank) = (buffer.lift(0), buffer.lift(1)) match {
+              case (Some(target), Some(rank)) if target == session.avatar.name =>
+                rank.toIntOption match {
+                  case Some(rank) => (None, CommandRank.withValueOpt(rank))
+                  case None       => (None, None)
+                }
+              case (Some(target), Some(rank)) =>
+                // picking other targets is not supported for now
+                (None, None)
+              case (Some(rank), None) =>
+                rank.toIntOption match {
+                  case Some(rank) => (None, CommandRank.withValueOpt(rank))
+                  case None       => (None, None)
+                }
+              case _ => (None, None)
+            }
+            (target, rank) match {
+              case (_, Some(rank)) =>
+                avatarActor ! AvatarActor.SetCep(rank.experience)
+                sessionActor ! SessionActor.SendResponse(message.copy(contents = "@AckSuccessSetCommandRank"))
+              case _ =>
+                sessionActor ! SessionActor.SendResponse(
+                  message.copy(messageType = UNK_229, contents = "@CMT_SETCOMMANDRANK_usage")
+                )
+            }
+
+          case (CMT_ADDBATTLEEXPERIENCE, _, contents) if session.account.gm =>
+            contents.toIntOption match {
+              case Some(bep) => avatarActor ! AvatarActor.AwardBep(bep)
+              case None =>
+                sessionActor ! SessionActor.SendResponse(
+                  message.copy(messageType = UNK_229, contents = "@CMT_ADDBATTLEEXPERIENCE_usage")
+                )
+            }
+
+          case (CMT_ADDCOMMANDEXPERIENCE, _, contents) if session.account.gm =>
+            contents.toIntOption match {
+              case Some(cep) => avatarActor ! AvatarActor.AwardCep(cep)
+              case None =>
+                sessionActor ! SessionActor.SendResponse(
+                  message.copy(messageType = UNK_229, contents = "@CMT_ADDCOMMANDEXPERIENCE_usage")
+                )
+            }
+
+          case (CMT_TOGGLE_HAT, _, contents) =>
+            val cosmetics = session.avatar.cosmetics.getOrElse(Set())
+            val nextCosmetics = contents match {
+              case "off" =>
+                cosmetics.diff(Set(Cosmetic.BrimmedCap, Cosmetic.Beret))
+              case _ =>
+                if (cosmetics.contains(Cosmetic.BrimmedCap)) {
+                  cosmetics.diff(Set(Cosmetic.BrimmedCap)) + Cosmetic.Beret
+                } else if (cosmetics.contains(Cosmetic.Beret)) {
+                  cosmetics.diff(Set(Cosmetic.BrimmedCap, Cosmetic.Beret))
+                } else {
+                  cosmetics + Cosmetic.BrimmedCap
+                }
+            }
+            val on = nextCosmetics.contains(Cosmetic.BrimmedCap) || nextCosmetics.contains(Cosmetic.Beret)
+
+            avatarActor ! AvatarActor.SetCosmetics(nextCosmetics)
+            sessionActor ! SessionActor.SendResponse(
+              message.copy(
+                messageType = UNK_229,
+                contents = s"@CMT_TOGGLE_HAT_${if (on) "on" else "off"}"
+              )
+            )
+
+          case (CMT_HIDE_HELMET | CMT_TOGGLE_SHADES | CMT_TOGGLE_EARPIECE, _, contents) =>
+            val cosmetics = session.avatar.cosmetics.getOrElse(Set())
+
+            val cosmetic = message.messageType match {
+              case CMT_HIDE_HELMET     => Cosmetic.NoHelmet
+              case CMT_TOGGLE_SHADES   => Cosmetic.Sunglasses
+              case CMT_TOGGLE_EARPIECE => Cosmetic.Earpiece
+            }
+            val on = contents match {
+              case "on"  => true
+              case "off" => false
+              case _     => !cosmetics.contains(cosmetic)
+            }
+
+            avatarActor ! AvatarActor.SetCosmetics(
+              if (on) cosmetics + cosmetic
+              else cosmetics.diff(Set(cosmetic))
+            )
+
+            sessionActor ! SessionActor.SendResponse(
+              message.copy(
+                messageType = UNK_229,
+                contents = s"@${message.messageType.toString}_${if (on) "on" else "off"}"
+              )
+            )
 
           case _ =>
             log.info(s"unhandled chat message $message")
@@ -762,6 +880,7 @@ class ChatActor(
               case (name, time) =>
                 log.error(s"bad silence args $name $time")
             }
+
           case _ =>
             log.error(s"unexpected messageType $message")
 

@@ -2,19 +2,20 @@
 package services.teamwork
 
 import akka.actor.{Actor, ActorRef, Terminated}
+import net.psforever.objects.avatar.Avatar
 import net.psforever.objects.definition.converter.StatConverter
 import net.psforever.objects.loadouts.SquadLoadout
 import net.psforever.objects.teamwork.{Member, Squad, SquadFeatures}
 import net.psforever.objects.zones.Zone
-import net.psforever.objects.{Avatar, LivePlayerList, Player}
+import net.psforever.objects.{LivePlayerList, Player}
 import net.psforever.packet.game.{
+  PlanetSideZoneID,
   SquadDetail,
   SquadInfo,
-  WaypointEventAction,
-  SquadPositionEntry,
   SquadPositionDetail,
-  WaypointInfo,
-  PlanetSideZoneID
+  SquadPositionEntry,
+  WaypointEventAction,
+  WaypointInfo
 }
 import net.psforever.types._
 import services.{GenericEventBus, Service}
@@ -464,13 +465,13 @@ class SquadService extends Actor {
                  case (_, a: Avatar) => a.name.equalsIgnoreCase(invitedName) && a.faction == tplayer.Faction
                })
                .headOption match {
-               case Some(player) => UserEvents.keys.find(_ == player.CharId)
+               case Some(player) => UserEvents.keys.find(_ == player.id)
                case None         => None
              }
            } else {
              //validate player with id exists
              LivePlayerList
-               .WorldPopulation({ case (_, a: Avatar) => a.CharId == _invitedPlayer && a.faction == tplayer.Faction })
+               .WorldPopulation({ case (_, a: Avatar) => a.id == _invitedPlayer && a.faction == tplayer.Faction })
                .headOption match {
                case Some(player) => Some(_invitedPlayer)
                case None         => None
@@ -604,7 +605,7 @@ class SquadService extends Actor {
                   (zone.LivePlayers
                     .collect {
                       case player
-                          if player.Faction == faction && player.LFS &&
+                          if player.Faction == faction && player.avatar.lookingForSquad &&
                             (memberToSquad.get(player.CharId).isEmpty || memberToSquad(player.CharId).Size == 1) &&
                             !excusedInvites
                               .contains(player.CharId) && Refused(player.CharId).contains(squad.Leader.CharId) &&
@@ -612,7 +613,7 @@ class SquadService extends Actor {
                             positions
                               .map { role =>
                                 val requirementsToMeet = role.Requirements
-                                requirementsToMeet.intersect(player.Certifications) == requirementsToMeet
+                                requirementsToMeet.intersect(player.avatar.certifications) == requirementsToMeet
                               }
                               .foldLeft(false)(_ || _)
                           } =>
@@ -827,7 +828,7 @@ class SquadService extends Actor {
                   if (squad.Size < squad.Capacity) {
                     val positions = (for {
                       (member, index) <- squad.Membership.zipWithIndex
-                      if squad.isAvailable(index, tplayer.Certifications)
+                      if squad.isAvailable(index, tplayer.avatar.certifications)
                     } yield (index, member.Requirements.size)).toList
                       .sortBy({ case (_, reqs) => reqs })
                     ((positions.headOption, positions.lastOption) match {
@@ -911,7 +912,7 @@ class SquadService extends Actor {
                  LivePlayerList
                    .WorldPopulation({ case (_, a: Avatar) => a.name.equalsIgnoreCase(name) })
                    .headOption match {
-                   case Some(a) => UserEvents.keys.find(_ == a.CharId)
+                   case Some(a) => UserEvents.keys.find(_ == a.id)
                    case None    => None
                  }
                } else {
@@ -1094,7 +1095,7 @@ class SquadService extends Actor {
                                   LivePlayerList
                                     .WorldPopulation({ case (_, a: Avatar) => a.name == promotedName })
                                     .headOption match {
-                                    case Some(player) => UserEvents.keys.find(_ == player.CharId)
+                                    case Some(player) => UserEvents.keys.find(_ == player.id)
                                     case None         => Some(_promotedPlayer)
                                   }
                                 } else {
@@ -1209,14 +1210,14 @@ class SquadService extends Actor {
             case SaveSquadFavorite() =>
               val squad = lSquadOpt.getOrElse(StartSquad(tplayer))
               if (squad.Task.nonEmpty && squad.ZoneId > 0) {
-                tplayer.SquadLoadouts.SaveLoadout(squad, squad.Task, line)
+                tplayer.squadLoadouts.SaveLoadout(squad, squad.Task, line)
                 Publish(sender, SquadResponse.ListSquadFavorite(line, squad.Task))
               }
 
             case LoadSquadFavorite() =>
               if (pSquadOpt.isEmpty || pSquadOpt == lSquadOpt) {
                 val squad = lSquadOpt.getOrElse(StartSquad(tplayer))
-                tplayer.SquadLoadouts.LoadLoadout(line) match {
+                tplayer.squadLoadouts.LoadLoadout(line) match {
                   case Some(loadout: SquadLoadout) if squad.Size == 1 =>
                     SquadService.LoadSquadDefinition(squad, loadout)
                     UpdateSquadListWhenListed(squadFeatures(squad.GUID), SquadService.SquadList.Publish(squad))
@@ -1229,7 +1230,7 @@ class SquadService extends Actor {
               }
 
             case DeleteSquadFavorite() =>
-              tplayer.SquadLoadouts.DeleteLoadout(line)
+              tplayer.squadLoadouts.DeleteLoadout(line)
               Publish(sender, SquadResponse.ListSquadFavorite(line, ""))
 
             case ChangeSquadPurpose(purpose) =>
@@ -1396,8 +1397,10 @@ class SquadService extends Actor {
                         .collect {
                           case player
                               if !excusedInvites.contains(player.CharId) &&
-                                faction == player.Faction && player.LFS && memberToSquad.get(player.CharId).isEmpty &&
-                                requirementsToMeet.intersect(player.Certifications) == requirementsToMeet =>
+                                faction == player.Faction && player.avatar.lookingForSquad && !memberToSquad.contains(
+                                player.CharId
+                              ) &&
+                                requirementsToMeet.intersect(player.avatar.certifications) == requirementsToMeet =>
                             player.CharId
                         }
                         .partition { charId => outstandingActiveInvites.exists(charId == _) } match {
@@ -1548,7 +1551,7 @@ class SquadService extends Actor {
                   //not a member of any squad, but we might become a member of this one
                   GetSquad(guid) match {
                     case Some(squad) =>
-                      if (squad.isAvailable(position, tplayer.Certifications)) {
+                      if (squad.isAvailable(position, tplayer.avatar.certifications)) {
                         //we could join but we may need permission from the squad leader first
                         AddInviteAndRespond(
                           squad.Leader.CharId,
@@ -2498,7 +2501,7 @@ class SquadService extends Actor {
     //accepted an invitation to join an existing squad
     squad.Membership.zipWithIndex.find({
       case (_, index) =>
-        squad.isAvailable(index, recruit.Certifications)
+        squad.isAvailable(index, recruit.avatar.certifications)
     }) match {
       case Some((_, line)) =>
         //position in squad found
@@ -2665,7 +2668,7 @@ class SquadService extends Actor {
     val charId = player.CharId
     val role   = squad.Membership(position)
     UserEvents.get(charId) match {
-      case Some(events) if squad.Leader.CharId != charId && squad.isAvailable(position, player.Certifications) =>
+      case Some(events) if squad.Leader.CharId != charId && squad.isAvailable(position, player.avatar.certifications) =>
         role.Name = player.Name
         role.CharId = charId
         role.Health = StatConverter.Health(player.Health, player.MaxHealth, min = 1, max = 64)

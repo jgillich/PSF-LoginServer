@@ -21,7 +21,7 @@ object GenericHackables {
     * @return the percentage amount of progress per tick
     */
   def GetHackSpeed(player: Player, obj: PlanetSideServerObject): Float = {
-    val playerHackLevel = Player.GetHackLevel(player)
+    val playerHackLevel = player.avatar.hackingSkillLevel()
     val timeToHack = obj match {
       case vehicle: Vehicle   => vehicle.JackingDuration(playerHackLevel).toFloat
       case hackable: Hackable => hackable.HackDuration(playerHackLevel).toFloat
@@ -118,7 +118,8 @@ object GenericHackables {
         )
         zone.LocalEvents ! LocalServiceMessage(
           zoneId,
-          LocalAction.HackTemporarily(pguid, zone, target, unk, target.HackEffectDuration(Player.GetHackLevel(user)))
+          LocalAction
+            .HackTemporarily(pguid, zone, target, unk, target.HackEffectDuration(user.avatar.hackingSkillLevel()))
         )
       case Failure(_) => log.warn(s"Hack message failed on target guid: ${target.GUID}")
     }

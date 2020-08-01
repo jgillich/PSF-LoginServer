@@ -5,7 +5,7 @@ import akka.actor.{ActorRef, Props}
 import akka.testkit.TestProbe
 import base.ActorTest
 import net.psforever.objects.ballistics._
-import net.psforever.objects.{Avatar, GlobalDefinitions, Player, Tool}
+import net.psforever.objects.{GlobalDefinitions, Player, Tool}
 import net.psforever.objects.guid.NumberPoolHub
 import net.psforever.objects.guid.source.LimitedNumberSource
 import net.psforever.objects.serverobject.CommonMessages

@@ -3,7 +3,7 @@ package objects
 
 import akka.actor.{ActorSystem, Props}
 import base.ActorTest
-import net.psforever.objects.{Avatar, Default, GlobalDefinitions, Player}
+import net.psforever.objects.{Default, GlobalDefinitions, Player}
 import net.psforever.objects.serverobject.CommonMessages
 import net.psforever.objects.serverobject.locks.{IFFLock, IFFLockControl}
 import net.psforever.objects.serverobject.structures.{Building, StructureType}

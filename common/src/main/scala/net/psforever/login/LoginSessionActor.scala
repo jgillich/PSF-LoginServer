@@ -174,7 +174,7 @@ class LoginSessionActor extends Actor with MDCContextAware {
           log.info(s"$account")
           (account.inactive, password.isBcrypted(account.passhash)) match {
             case (false, true) =>
-              accountIntermediary ! StoreAccountData(newToken, new Account(account.id, account.username, account.gm))
+              accountIntermediary ! StoreAccountData(newToken, Account(account.id, account.username, account.gm))
               val future = ctx.run(
                 query[persistence.Login].insert(
                   _.accountId         -> lift(account.id),
