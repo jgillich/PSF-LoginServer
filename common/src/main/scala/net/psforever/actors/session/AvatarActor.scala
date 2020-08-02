@@ -396,6 +396,7 @@ class AvatarActor(
                 implants = implants.map(implant => Some(Implant(implant.toImplantDefinition))).padTo(3, None)
               )
 
+              staminaRegenTimer.cancel()
               staminaRegenTimer = defaultStaminaRegen()
               replyTo ! AvatarLoginResponse()
             case Failure(e) => log.error(e)("db failure")

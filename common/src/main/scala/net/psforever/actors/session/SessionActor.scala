@@ -16,7 +16,6 @@ import net.psforever.objects.entity.{SimpleWorldEntity, WorldEntity}
 import net.psforever.objects.equipment.{EffectTarget, Equipment, FireModeSwitch, JammableUnit}
 import net.psforever.objects.guid.{GUIDTask, Task, TaskResolver}
 import net.psforever.objects.inventory.{Container, InventoryItem}
-import net.psforever.objects.loadouts.{InfantryLoadout, VehicleLoadout}
 import net.psforever.objects.serverobject.affinity.FactionAffinity
 import net.psforever.objects.serverobject.containable.Containable
 import net.psforever.objects.serverobject.damage.Damageable
@@ -74,11 +73,14 @@ import net.psforever.login.WorldSession._
 import net.psforever.zones.Zones
 import services.chat.ChatService
 import net.psforever.objects.avatar.Cosmetic
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Success
 import akka.actor.typed.scaladsl.adapter._
+import akka.pattern.ask
+import akka.util.Timeout
 
 import scala.collection.mutable
 
@@ -464,9 +466,27 @@ class SessionActor extends Actor with MDCContextAware {
       zoningType = Zoning.Method.InstantAction
       zoningChatMessageType = ChatMessageType.CMT_INSTANTACTION
       zoningStatus = Zoning.Status.Request
+      /* TODO no ask or adapters from classic to typed so this logic is happening in SpawnPointResponse
+      implicit val timeout = Timeout(1 seconds)
+      val future =
+        ask(cluster.toClassic, InterstellarClusterService.GetInstantActionSpawnPoint(player.Faction, context.self))
+          .mapTo[InterstellarClusterService.SpawnPointResponse]
+      Await.result(future, 2 second) match {
+        case InterstellarClusterService.SpawnPointResponse(None) =>
+          sendResponse(
+            ChatMsg(ChatMessageType.CMT_INSTANTACTION, false, "", "@InstantActionNoHotspotsAvailable", None)
+          )
+        case InterstellarClusterService.SpawnPointResponse(Some(_)) =>
+          beginZoningCountdown(() => {
+            cluster ! InterstellarClusterService.GetInstantActionSpawnPoint(player.Faction, context.self)
+          })
+      }
+
       beginZoningCountdown(() => {
         cluster ! InterstellarClusterService.GetInstantActionSpawnPoint(player.Faction, context.self)
       })
+       */
+      cluster ! InterstellarClusterService.GetInstantActionSpawnPoint(player.Faction, context.self)
 
     case Quit() =>
       //priority to quitting is given to quit over other zoning methods
@@ -964,29 +984,34 @@ class SessionActor extends Actor with MDCContextAware {
       log.warn(s"${tplayer.Name} is already spawned on zone ${zone.Id}; a clerical error?")
 
     case InterstellarClusterService.SpawnPointResponse(response) =>
-      val currentZoningType = zoningType
-      CancelZoningProcess()
-      PlayerActionsToCancel()
-      CancelAllProximityUnits()
-      continent.Population ! Zone.Population.Release(avatar)
-      response match {
-        case Some((zone, spawnPoint)) =>
-          val (pos, ori) = spawnPoint.SpecificPoint(continent.GUID(player.VehicleSeated) match {
-            case Some(obj: Vehicle) if !obj.Destroyed =>
-              obj
-            case _ =>
-              player
-          })
-          LoadZonePhysicalSpawnPoint(zone.Id, pos, ori, CountSpawnDelay(zone.Id, spawnPoint, continent.Id))
-        case None =>
-          currentZoningType match {
-            case Zoning.Method.InstantAction =>
-              CancelZoningProcessWithReason("@InstantActionNoHotspotsAvailable")
-            case _ =>
-              log.error("got None spawn point response from InterstellarClusterService")
-              RequestSanctuaryZoneSpawn(player, 0)
-          }
-
+      if (zoningStatus == Zoning.Status.Request && zoningType == Zoning.Method.InstantAction && response.isEmpty) {
+        CancelZoningProcessWithReason("@InstantActionNoHotspotsAvailable")
+      } else {
+        val currentZoningType = zoningType
+        CancelZoningProcess()
+        PlayerActionsToCancel()
+        CancelAllProximityUnits()
+        continent.Population ! Zone.Population.Release(avatar)
+        response match {
+          case Some((zone, spawnPoint)) =>
+            val (pos, ori) = spawnPoint.SpecificPoint(continent.GUID(player.VehicleSeated) match {
+              case Some(obj: Vehicle) if !obj.Destroyed =>
+                obj
+              case _ =>
+                player
+            })
+            LoadZonePhysicalSpawnPoint(zone.Id, pos, ori, CountSpawnDelay(zone.Id, spawnPoint, continent.Id))
+          case None =>
+            currentZoningType match {
+              case Zoning.Method.InstantAction =>
+                sendResponse(
+                  ChatMsg(ChatMessageType.CMT_INSTANTACTION, false, "", "@InstantActionNoHotspotsAvailable", None)
+                )
+              case _ =>
+                log.error("got None spawn point response from InterstellarClusterService")
+                RequestSanctuaryZoneSpawn(player, 0)
+            }
+        }
       }
 
     case msg @ Zone.Vehicle.CanNotSpawn(zone, vehicle, reason) =>
@@ -1190,8 +1215,6 @@ class SessionActor extends Actor with MDCContextAware {
       StartBundlingPackets()
       //PropertyOverrideMessage
 
-      import akka.pattern.ask
-      import akka.util.Timeout
       implicit val timeout = Timeout(1 seconds)
       val future = ask(propertyOverrideManager, PropertyOverrideManager.GetOverridesMessage)
         .mapTo[List[PropertyOverrideMessage.GamePropertyScope]]
@@ -1255,7 +1278,6 @@ class SessionActor extends Actor with MDCContextAware {
         case _ =>
           taskResolver ! RegisterNewAvatar(player)
       }
-      CancelZoningProcess()
 
     case NewPlayerLoaded(tplayer) =>
       //new zone
