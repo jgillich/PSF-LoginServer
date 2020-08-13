@@ -103,7 +103,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
                   InventoryStateMessage(item.AmmoSlot.Box.GUID, item.GUID, magazine.toLong)
                 )
               )
-              events ! AvatarServiceMessage(zone.Id, AvatarAction.PlanetsideAttributeToAll(guid, 0, newHealth))
+              events ! AvatarServiceMessage(zone.id, AvatarAction.PlanetsideAttributeToAll(guid, 0, newHealth))
               player.History(
                 HealFromEquipment(
                   PlayerSource(player),
@@ -167,7 +167,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
                   InventoryStateMessage(item.AmmoSlot.Box.GUID, item.GUID, magazine.toLong)
                 )
               )
-              events ! AvatarServiceMessage(zone.Id, AvatarAction.PlanetsideAttributeToAll(guid, 4, player.Armor))
+              events ! AvatarServiceMessage(zone.id, AvatarAction.PlanetsideAttributeToAll(guid, 4, player.Armor))
               player.History(
                 RepairFromEquipment(
                   PlayerSource(player),
@@ -284,7 +284,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
                 //deactivate non-passive implants
                 avatarActor ! AvatarActor.DeactivateActiveImplants()
                 player.Zone.AvatarEvents ! AvatarServiceMessage(
-                  player.Zone.Id,
+                  player.Zone.id,
                   AvatarAction.ChangeExosuit(
                     player.GUID,
                     exosuit,
@@ -421,7 +421,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
               //deactivate non-passive implants
               avatarActor ! AvatarActor.DeactivateActiveImplants()
               player.Zone.AvatarEvents ! AvatarServiceMessage(
-                player.Zone.Id,
+                player.Zone.id,
                 AvatarAction.ChangeLoadout(
                   player.GUID,
                   nextSuit,
@@ -538,7 +538,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
   ): Unit = {
     val targetGUID = target.GUID
     val zone       = target.Zone
-    val zoneId     = zone.Id
+    val zoneId     = zone.id
     val events     = zone.AvatarEvents
     val health     = target.Health
     if (damageToArmor > 0) {
@@ -617,7 +617,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
     val zone         = target.Zone
     val events       = zone.AvatarEvents
     val nameChannel  = target.Name
-    val zoneChannel  = zone.Id
+    val zoneChannel  = zone.id
     target.Die
     //unjam
     CancelJammeredSound(target)
@@ -722,7 +722,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
     target match {
       case obj: Player if !jammedSound =>
         obj.Zone.AvatarEvents ! AvatarServiceMessage(
-          obj.Zone.Id,
+          obj.Zone.id,
           AvatarAction.PlanetsideAttributeToAll(obj.GUID, 27, 1)
         )
         super.StartJammeredSound(obj, 3000)
@@ -758,7 +758,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
     target match {
       case obj: Player if jammedSound =>
         obj.Zone.AvatarEvents ! AvatarServiceMessage(
-          obj.Zone.Id,
+          obj.Zone.id,
           AvatarAction.PlanetsideAttributeToAll(obj.GUID, 27, 0)
         )
         super.CancelJammeredSound(obj)
@@ -793,7 +793,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
     val obj       = ContainerObject
     val zone      = obj.Zone
     val events    = zone.AvatarEvents
-    val toChannel = if (obj.VisibleSlots.contains(slot)) zone.Id else player.Name
+    val toChannel = if (obj.VisibleSlots.contains(slot)) zone.id else player.Name
     item.Faction = PlanetSideEmpire.NEUTRAL
     if (slot == obj.DrawnSlot) {
       obj.DrawnSlot = Player.HandsDownSlot
@@ -823,7 +823,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
       )
     )
     if (obj.VisibleSlots.contains(slot)) {
-      events ! AvatarServiceMessage(zone.Id, AvatarAction.EquipmentInHand(guid, guid, slot, item))
+      events ! AvatarServiceMessage(zone.id, AvatarAction.EquipmentInHand(guid, guid, slot, item))
     }
     //handle specific types of items
     item match {

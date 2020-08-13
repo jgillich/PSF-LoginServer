@@ -89,7 +89,7 @@ class FacilityTurretControl(turret: FacilityTurret)
             seat.Occupant match {
               case Some(player: Player) =>
                 turret.Zone.LocalEvents ! LocalServiceMessage(
-                  turret.Zone.Id,
+                  turret.Zone.id,
                   LocalAction.RechargeVehicleWeapon(player.GUID, turret.GUID, weapon.GUID)
                 )
               case _ => ;
@@ -107,7 +107,7 @@ class FacilityTurretControl(turret: FacilityTurret)
   override protected def DestructionAwareness(target: Target, cause: ResolvedProjectile): Unit = {
     super.DestructionAwareness(target, cause)
     val zone   = target.Zone
-    val zoneId = zone.Id
+    val zoneId = zone.id
     val events = zone.AvatarEvents
     val tguid  = target.GUID
     events ! AvatarServiceMessage(zoneId, AvatarAction.PlanetsideAttributeToAll(tguid, 50, 1))
@@ -117,7 +117,7 @@ class FacilityTurretControl(turret: FacilityTurret)
   override def Restoration(obj: Target): Unit = {
     super.Restoration(obj)
     val zone   = turret.Zone
-    val zoneId = zone.Id
+    val zoneId = zone.id
     val events = zone.AvatarEvents
     val tguid  = turret.GUID
     events ! AvatarServiceMessage(zoneId, AvatarAction.PlanetsideAttributeToAll(tguid, 50, 0))

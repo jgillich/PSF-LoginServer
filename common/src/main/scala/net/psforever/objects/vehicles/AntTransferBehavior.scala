@@ -30,7 +30,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
   def ActivatePanelsForChargingEvent(vehicle: NtuContainer): Unit = {
     val zone = vehicle.Zone
     zone.VehicleEvents ! VehicleServiceMessage(
-      zone.Id,
+      zone.id,
       VehicleAction.PlanetsideAttribute(Service.defaultPlayerGUID, vehicle.GUID, 52, 1L)
     ) // panel glow on
   }
@@ -39,7 +39,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
   def StartNtuChargingEvent(vehicle: NtuContainer): Unit = {
     val zone = vehicle.Zone
     zone.VehicleEvents ! VehicleServiceMessage(
-      zone.Id,
+      zone.id,
       VehicleAction.PlanetsideAttribute(Service.defaultPlayerGUID, vehicle.GUID, 49, 1L)
     ) // orb particle effect on
   }
@@ -149,7 +149,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
         //vehicle is not deployed; just do cleanup
         val vguid  = vehicle.GUID
         val zone   = vehicle.Zone
-        val zoneId = zone.Id
+        val zoneId = zone.id
         val events = zone.VehicleEvents
         if (transferEvent == TransferBehavior.Event.Charging) {
           events ! VehicleServiceMessage(

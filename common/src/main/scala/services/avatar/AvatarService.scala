@@ -10,13 +10,13 @@ import services.avatar.support.{CorpseRemovalActor, DroppedItemRemover}
 import services.{GenericEventBus, RemoverActor, Service}
 
 class AvatarService(zone: Zone) extends Actor {
-  private val undertaker: ActorRef = context.actorOf(Props[CorpseRemovalActor], s"${zone.Id}-corpse-removal-agent")
-  private val janitor              = context.actorOf(Props[DroppedItemRemover], s"${zone.Id}-item-remover-agent")
+  private val undertaker: ActorRef = context.actorOf(Props[CorpseRemovalActor], s"${zone.id}-corpse-removal-agent")
+  private val janitor              = context.actorOf(Props[DroppedItemRemover], s"${zone.id}-item-remover-agent")
 
   private[this] val log = org.log4s.getLogger
 
   override def preStart = {
-    log.trace(s"Awaiting ${zone.Id} avatar events ...")
+    log.trace(s"Awaiting ${zone.id} avatar events ...")
   }
 
   val AvatarEvents = new GenericEventBus[AvatarServiceResponse] //AvatarEventBus

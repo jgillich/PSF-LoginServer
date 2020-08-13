@@ -103,12 +103,6 @@ case class Avatar(
       case Some(purchaseTime) =>
         val secondsSincePurchase = new Period(purchaseTime, LocalDateTime.now()).toStandardSeconds.getSeconds
         Avatar.purchaseCooldowns.get(definition) match {
-          case Some(cooldown) =>
-            println(s"${purchaseTime} ${cooldown.toSeconds} - ${secondsSincePurchase}")
-            if ((cooldown.toSeconds - secondsSincePurchase) > 0)
-              Some(Period.seconds(cooldown.toSeconds.toInt - secondsSincePurchase))
-            else
-              None
           case Some(cooldown) if (cooldown.toSeconds - secondsSincePurchase) > 0 =>
             Some(Period.seconds(cooldown.toSeconds.toInt - secondsSincePurchase))
           case _ => None

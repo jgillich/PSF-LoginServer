@@ -167,7 +167,7 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
   def UpgradeTurretAmmo(entry: TurretUpgrader.Entry): Unit = {
     val target     = entry.obj.asInstanceOf[FacilityTurret]
     val zone       = entry.zone
-    val zoneId     = zone.Id
+    val zoneId     = zone.id
     val upgrade    = entry.upgrade
     val guid       = zone.GUID
     val turretGUID = target.GUID
@@ -258,7 +258,7 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
         .collect {
           case (index, Some(tool: Tool)) =>
             context.parent ! VehicleServiceMessage(
-              zone.Id,
+              zone.id,
               VehicleAction.EquipmentInSlot(PlanetSideGUID(0), targetGUID, index, tool)
             )
         }

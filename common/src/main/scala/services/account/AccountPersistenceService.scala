@@ -403,7 +403,7 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
       case _ => ;
     }
     inZone.Population.tell(Zone.Population.Release(avatar), parent)
-    inZone.AvatarEvents.tell(AvatarServiceMessage(inZone.Id, AvatarAction.ObjectDelete(pguid, pguid)), parent)
+    inZone.AvatarEvents.tell(AvatarServiceMessage(inZone.id, AvatarAction.ObjectDelete(pguid, pguid)), parent)
     AvatarLogout(avatar)
     taskResolver.tell(GUIDTask.UnregisterAvatar(player)(inZone.GUID), parent)
   }

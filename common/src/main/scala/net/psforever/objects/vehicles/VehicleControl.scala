@@ -231,7 +231,7 @@ class VehicleControl(vehicle: Vehicle)
               }
               finalInventory.foreach { _.obj.Faction = vehicle.Faction }
               player.Zone.VehicleEvents ! VehicleServiceMessage(
-                player.Zone.Id,
+                player.Zone.id,
                 VehicleAction.ChangeLoadout(vehicle.GUID, oldWeapons, newWeapons, oldInventory, finalInventory)
               )
               player.Zone.AvatarEvents ! AvatarServiceMessage(
@@ -286,7 +286,7 @@ class VehicleControl(vehicle: Vehicle)
     decaying = false
     val guid   = vehicle.GUID
     val zone   = vehicle.Zone
-    val zoneId = zone.Id
+    val zoneId = zone.id
     val events = zone.VehicleEvents
     //miscellaneous changes
     Vehicles.BeforeUnloadVehicle(vehicle, zone)
@@ -351,7 +351,7 @@ class VehicleControl(vehicle: Vehicle)
         case VehicleControl.Deletion() =>
           val zone = vehicle.Zone
           zone.VehicleEvents ! VehicleServiceMessage(
-            zone.Id,
+            zone.id,
             VehicleAction.UnloadVehicle(Service.defaultPlayerGUID, zone, vehicle, vehicle.GUID)
           )
           zone.Transport ! Zone.Vehicle.Despawn(vehicle)
@@ -422,7 +422,7 @@ class VehicleControl(vehicle: Vehicle)
     item.Faction = obj.Faction
     events ! VehicleServiceMessage(
       //TODO when a new weapon, the equipment slot ui goes blank, but the weapon functions; remount vehicle to correct it
-      if (obj.VisibleSlots.contains(slot)) zone.Id else channel,
+      if (obj.VisibleSlots.contains(slot)) zone.id else channel,
       VehicleAction.SendResponse(
         Service.defaultPlayerGUID,
         ObjectCreateMessage(
@@ -473,7 +473,7 @@ class VehicleControl(vehicle: Vehicle)
       case vehicle: Vehicle =>
         val guid        = vehicle.GUID
         val zone        = vehicle.Zone
-        val zoneChannel = zone.Id
+        val zoneChannel = zone.id
         val GUID0       = Service.defaultPlayerGUID
         val driverChannel = vehicle.Seats(0).Occupant match {
           case Some(tplayer) => tplayer.Name
@@ -569,7 +569,7 @@ class VehicleControl(vehicle: Vehicle)
             case DriveState.Undeploying =>
               //deactivate internal router before trying to reset the system
               Vehicles.RemoveTelepads(vehicle)
-              zone.LocalEvents ! LocalServiceMessage(zone.Id, LocalAction.ToggleTeleportSystem(GUID0, vehicle, None))
+              zone.LocalEvents ! LocalServiceMessage(zone.id, LocalAction.ToggleTeleportSystem(GUID0, vehicle, None))
             case _ => ;
           }
         }

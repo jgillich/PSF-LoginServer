@@ -45,7 +45,7 @@ class HackClearActor() extends Actor {
         entry.target.Actor ! CommonMessages.ClearHack()
         context.parent ! HackClearActor.ClearTheHack(
           entry.target.GUID,
-          entry.zone.Id,
+          entry.zone.id,
           entry.unk1,
           entry.unk2
         ) //call up to the main event system
@@ -61,7 +61,7 @@ class HackClearActor() extends Actor {
           entry.target.Actor ! CommonMessages.ClearHack()
           context.parent ! HackClearActor.ClearTheHack(
             entry.target.GUID,
-            entry.zone.Id,
+            entry.zone.id,
             entry.unk1,
             entry.unk2
           ) //call up to the main event system

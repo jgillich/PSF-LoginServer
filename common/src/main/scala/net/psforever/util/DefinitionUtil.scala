@@ -1,7 +1,9 @@
 package net.psforever.util
 
+import net.psforever.objects.definition.BasicDefinition
 import net.psforever.objects.{AmmoBox, GlobalDefinitions, Player, SimpleItem, Tool}
 import net.psforever.types.ExoSuitType
+import scala.reflect.runtime.universe
 
 // TODO definitions should be in an iterable format
 object DefinitionUtil {
@@ -235,5 +237,39 @@ object DefinitionUtil {
     player.Inventory.Items.foreach {
       _.obj.Faction = faction
     }
+  }
+
+  /*
+  def fromStringImpl(c: blackbox.Context)(name: c.Expr[String]): c.Tree = {
+    import c.universe._
+
+    q"""
+      ${name} match {
+        case ..${GlobalDefinitions.getClass.getFields
+      .map { f =>
+        cq"""${f.getName} => net.psforever.objects.GlobalDefinitions.generator"""
+      }}
+      }
+    """
+  }
+
+  def fromString(name: String): BasicDefinition = macro fromStringImpl
+
+   */
+
+  private val runtimeMirror  = universe.runtimeMirror(getClass.getClassLoader)
+  private val instanceMirror = runtimeMirror.reflect(GlobalDefinitions)
+
+  /** Returns definition for given string */
+  // This is slow and ugly, the macro implementation from above would be better
+  // But macros cannot be called from the project they're defined in, and moving this to another project is not easy
+  // Making GlobalDefinitions iterable (map etc) should be the preferred solution
+  def fromString(name: String): BasicDefinition = {
+    //println(
+    //  s"${universe.typeOf[GlobalDefinitions.type].member(universe.TermName(name))} ${universe.typeOf[GlobalDefinitions.type].decl(universe.TermName(name))}"
+    //)
+    universe.typeOf[GlobalDefinitions.type].decl(universe.TermName(name))
+    val method = universe.typeOf[GlobalDefinitions.type].member(universe.TermName(name)).asMethod
+    instanceMirror.reflectMethod(method).apply().asInstanceOf[BasicDefinition]
   }
 }

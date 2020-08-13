@@ -64,7 +64,7 @@ class HackCaptureActor extends Actor {
 
         context.parent ! HackCaptureActor.HackTimeoutReached(
           entry.target.GUID,
-          entry.zone.Id,
+          entry.zone.id,
           entry.unk1,
           entry.unk2,
           hackedByFaction

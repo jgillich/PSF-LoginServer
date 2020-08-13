@@ -30,7 +30,7 @@ class ZoneGroundActor(zone: Zone, equipmentOnGround: ListBuffer[Equipment]) exte
                   item.Position = pos
                   item.Orientation = orient
                   zone.AvatarEvents ! AvatarServiceMessage(
-                    zone.Id,
+                    zone.id,
                     AvatarAction.DropItem(Service.defaultPlayerGUID, item)
                   )
                   Zone.Ground.ItemOnGround(item, pos, orient)
@@ -39,7 +39,7 @@ class ZoneGroundActor(zone: Zone, equipmentOnGround: ListBuffer[Equipment]) exte
     case Zone.Ground.PickupItem(item_guid) =>
       sender ! (FindItemOnGround(item_guid) match {
         case Some(item) =>
-          zone.AvatarEvents ! AvatarServiceMessage(zone.Id, AvatarAction.PickupItem(Service.defaultPlayerGUID, item, 0))
+          zone.AvatarEvents ! AvatarServiceMessage(zone.id, AvatarAction.PickupItem(Service.defaultPlayerGUID, item, 0))
           Zone.Ground.ItemInHand(item)
         case None =>
           Zone.Ground.CanNotPickupItem(zone, item_guid, "can not find")
@@ -49,7 +49,7 @@ class ZoneGroundActor(zone: Zone, equipmentOnGround: ListBuffer[Equipment]) exte
       //intentionally no callback
       FindItemOnGround(item_guid) match {
         case Some(item) =>
-          zone.AvatarEvents ! AvatarServiceMessage(zone.Id, AvatarAction.PickupItem(Service.defaultPlayerGUID, item, 0))
+          zone.AvatarEvents ! AvatarServiceMessage(zone.id, AvatarAction.PickupItem(Service.defaultPlayerGUID, item, 0))
         case None => ;
       }
 

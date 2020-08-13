@@ -21,7 +21,7 @@ class ProjectileTest extends Specification {
     }
 
     "local projectile range" in {
-      Projectile.BaseUID < Projectile.RangeUID mustEqual true
+      Projectile.baseUID < Projectile.rangeUID mustEqual true
     }
   }
 

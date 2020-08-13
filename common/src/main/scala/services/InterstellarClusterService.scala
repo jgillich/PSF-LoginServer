@@ -83,8 +83,8 @@ class InterstellarClusterService(context: ActorContext[InterstellarClusterServic
   val zoneActors: mutable.Map[String, (ActorRef[ZoneActor.Command], Zone)] = mutable.Map(
     _zones.map {
       case zone =>
-        val zoneActor = context.spawn(ZoneActor(zone), s"zone-${zone.Id}")
-        (zone.Id, (zoneActor, zone))
+        val zoneActor = context.spawn(ZoneActor(zone), s"zone-${zone.id}")
+        (zone.id, (zoneActor, zone))
     }.toSeq: _*
   )
 
@@ -156,6 +156,8 @@ class InterstellarClusterService(context: ActorContext[InterstellarClusterServic
       case GetRandomSpawnPoint(zoneNumber, faction, spawnGroups, replyTo) =>
         val response = zones.find(_.Number == zoneNumber) match {
           case Some(zone) =>
+            log.info(s"${zoneNumber} ${zone.findSpawns(faction, spawnGroups)}")
+
             /*
             val location = math.abs(Random.nextInt() % 4) match {
               case 0 => Vector3(sanctuary.map.Scale.width, sanctuary.map.Scale.height, 0) //NE
@@ -183,6 +185,8 @@ class InterstellarClusterService(context: ActorContext[InterstellarClusterServic
       case GetSpawnPoint(zoneNumber, player, target, replyTo) =>
         zones.find(_.Number == zoneNumber) match {
           case Some(zone) =>
+            log.info(s"${zoneNumber} ${zone.findSpawns(player.Faction, SpawnGroup.values)}")
+
             zone.findSpawns(player.Faction, SpawnGroup.values).find {
               case (spawn: Building, spawnPoints) =>
                 spawn.MapId == target.guid || spawnPoints.exists(_.GUID == target)

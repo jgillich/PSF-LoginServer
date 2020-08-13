@@ -133,7 +133,7 @@ object PsLogin {
       None
     }
 
-    val zones = Zones.zones.values ++ Seq(Zone.Nowhere)
+    val zones = Zones.zones ++ Seq(Zone.Nowhere)
 
     system.spawn(ChatService(), ChatService.ChatServiceKey.id)
     system.spawn(InterstellarClusterService(zones), InterstellarClusterService.InterstellarClusterServiceKey.id)

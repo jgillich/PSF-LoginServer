@@ -185,7 +185,7 @@ object ImplantTerminalMechTest {
     guid.register(terminal, 1)
     guid.register(interface, 2)
     guid.register(building, 3)
-    map.TerminalToInterface(1, 2)
+    map.linkTerminalToInterface(1, 2)
     terminal.Actor = system.actorOf(Props(classOf[ImplantTerminalMechControl], terminal), "terminal-control")
 
     (Player(Avatar("test", faction, CharacterGender.Male, 0, CharacterVoice.Mute)), terminal)

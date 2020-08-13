@@ -60,7 +60,7 @@ class VehicleSpawnControl3Test extends ActorTest {
       val probe   = new TestProbe(system, "zone-events")
       val player2 = Player(Avatar("test2", player.Faction, CharacterGender.Male, 0, CharacterVoice.Mute))
       player2.GUID = PlanetSideGUID(11)
-      player2.Continent = zone.Id
+      player2.Continent = zone.id
       player2.Spawn
 
       zone.VehicleEvents = probe.ref                             //zone events

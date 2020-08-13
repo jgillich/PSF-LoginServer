@@ -27,13 +27,13 @@ object GenericHackables {
       case hackable: Hackable => hackable.HackDuration(playerHackLevel).toFloat
       case _ =>
         log.warn(
-          s"${player.Name} tried to hack an object that has no hack time defined - ${obj.Definition.Name}#${obj.GUID} on ${obj.Zone.Id}"
+          s"${player.Name} tried to hack an object that has no hack time defined - ${obj.Definition.Name}#${obj.GUID} on ${obj.Zone.id}"
         )
         0f
     }
     if (timeToHack == 0) {
       log.warn(
-        s"${player.Name} tried to hack an object that they don't have the correct hacking level for - ${obj.Definition.Name}#${obj.GUID} on ${obj.Zone.Id}"
+        s"${player.Name} tried to hack an object that they don't have the correct hacking level for - ${obj.Definition.Name}#${obj.GUID} on ${obj.Zone.id}"
       )
       0f
     } else {
@@ -110,7 +110,7 @@ object GenericHackables {
     ask(target.Actor, CommonMessages.Hack(tplayer, target))(1 second).mapTo[Boolean].onComplete {
       case Success(_) =>
         val zone   = target.Zone
-        val zoneId = zone.Id
+        val zoneId = zone.id
         val pguid  = tplayer.GUID
         zone.LocalEvents ! LocalServiceMessage(
           zoneId,

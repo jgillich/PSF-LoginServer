@@ -35,62 +35,62 @@ class ZoneTest extends Specification {
 
     "references bases by a positive building id (defaults to 0)" in {
       val map = new ZoneMap("map13")
-      map.LocalBuildings mustEqual Map.empty
-      map.LocalBuilding("Building", building_guid = 10, map_id = 0, FoundationBuilder(test))
-      map.LocalBuildings.keySet.contains(("Building", 10, 0)) mustEqual true
-      map.LocalBuilding("Building", building_guid = -1, map_id = 0, FoundationBuilder(test))
-      map.LocalBuildings.keySet.contains(("Building", 10, 0)) mustEqual true
-      map.LocalBuildings.keySet.contains(("Building", -1, 0)) mustEqual false
+      map.localBuildings mustEqual Map.empty
+      map.addLocalBuilding("Building", buildingGuid = 10, mapId = 0, FoundationBuilder(test))
+      map.localBuildings.keySet.contains(("Building", 10, 0)) mustEqual true
+      map.addLocalBuilding("Building", buildingGuid = -1, mapId = 0, FoundationBuilder(test))
+      map.localBuildings.keySet.contains(("Building", 10, 0)) mustEqual true
+      map.localBuildings.keySet.contains(("Building", -1, 0)) mustEqual false
     }
 
     "associates objects to bases (doesn't check numbers)" in {
       val map = new ZoneMap("map13")
-      map.ObjectToBuilding mustEqual Map.empty
-      map.ObjectToBuilding(1, 2)
-      map.ObjectToBuilding mustEqual Map(1 -> 2)
-      map.ObjectToBuilding(3, 4)
-      map.ObjectToBuilding mustEqual Map(1 -> 2, 3 -> 4)
+      map.objectToBuilding mustEqual Map.empty
+      map.linkObjectToBuilding(1, 2)
+      map.objectToBuilding mustEqual Map(1 -> 2)
+      map.linkObjectToBuilding(3, 4)
+      map.objectToBuilding mustEqual Map(1 -> 2, 3 -> 4)
     }
 
     "associates doors to door locks (doesn't check numbers)" in {
       val map = new ZoneMap("map13")
-      map.DoorToLock mustEqual Map.empty
-      map.DoorToLock(1, 2)
-      map.DoorToLock mustEqual Map(1 -> 2)
-      map.DoorToLock(3, 4)
-      map.DoorToLock mustEqual Map(1 -> 2, 3 -> 4)
+      map.doorToLock mustEqual Map.empty
+      map.linkDoorToLock(1, 2)
+      map.doorToLock mustEqual Map(1 -> 2)
+      map.linkDoorToLock(3, 4)
+      map.doorToLock mustEqual Map(1 -> 2, 3 -> 4)
     }
 
     "associates terminals to spawn pads (doesn't check numbers)" in {
       val map = new ZoneMap("map13")
-      map.TerminalToSpawnPad mustEqual Map.empty
-      map.TerminalToSpawnPad(1, 2)
-      map.TerminalToSpawnPad mustEqual Map(1 -> 2)
-      map.TerminalToSpawnPad(3, 4)
-      map.TerminalToSpawnPad mustEqual Map(1 -> 2, 3 -> 4)
+      map.terminalToSpawnPad mustEqual Map.empty
+      map.linkTerminalToSpawnPad(1, 2)
+      map.terminalToSpawnPad mustEqual Map(1 -> 2)
+      map.linkTerminalToSpawnPad(3, 4)
+      map.terminalToSpawnPad mustEqual Map(1 -> 2, 3 -> 4)
     }
 
     "associates mechanical components to implant terminals (doesn't check numbers)" in {
       val map = new ZoneMap("map13")
-      map.TerminalToInterface mustEqual Map.empty
-      map.TerminalToInterface(1, 2)
-      map.TerminalToInterface mustEqual Map(1 -> 2)
-      map.TerminalToInterface(3, 4)
-      map.TerminalToInterface mustEqual Map(1 -> 2, 3 -> 4)
+      map.terminalToInterface mustEqual Map.empty
+      map.linkTerminalToInterface(1, 2)
+      map.terminalToInterface mustEqual Map(1 -> 2)
+      map.linkTerminalToInterface(3, 4)
+      map.terminalToInterface mustEqual Map(1 -> 2, 3 -> 4)
     }
 
     "associate turrets to weapons" in {
       val map = new ZoneMap("map13")
-      map.TurretToWeapon mustEqual Map.empty
-      map.TurretToWeapon(1, 2)
-      map.TurretToWeapon mustEqual Map(1 -> 2)
-      map.TurretToWeapon(3, 4)
-      map.TurretToWeapon mustEqual Map(1 -> 2, 3 -> 4)
+      map.turretToWeapon mustEqual Map.empty
+      map.linkTurretToWeapon(1, 2)
+      map.turretToWeapon mustEqual Map(1 -> 2)
+      map.linkTurretToWeapon(3, 4)
+      map.turretToWeapon mustEqual Map(1 -> 2, 3 -> 4)
     }
   }
 
   val map13 = new ZoneMap("map13")
-  map13.LocalBuilding("Building", building_guid = 0, map_id = 10, FoundationBuilder(test))
+  map13.addLocalBuilding("Building", buildingGuid = 0, mapId = 10, FoundationBuilder(test))
   class TestObject extends IdentifiableEntity
 
   "Zone" should {
@@ -166,40 +166,40 @@ class ZoneActorTest extends ActorTest {
 
     "set up spawn groups based on buildings" in {
       val map6 = new ZoneMap("map6") {
-        LocalBuilding(
+        addLocalBuilding(
           "Building",
-          building_guid = 1,
-          map_id = 1,
+          buildingGuid = 1,
+          mapId = 1,
           FoundationBuilder(Building.Structure(StructureType.Building, Vector3(1, 1, 1)))
         )
-        LocalObject(2, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
-        LocalObject(3, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
-        LocalObject(4, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
-        ObjectToBuilding(2, 1)
-        ObjectToBuilding(3, 1)
-        ObjectToBuilding(4, 1)
+        addLocalObject(2, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
+        addLocalObject(3, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
+        addLocalObject(4, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
+        linkObjectToBuilding(2, 1)
+        linkObjectToBuilding(3, 1)
+        linkObjectToBuilding(4, 1)
 
-        LocalBuilding(
+        addLocalBuilding(
           "Building",
-          building_guid = 5,
-          map_id = 2,
+          buildingGuid = 5,
+          mapId = 2,
           FoundationBuilder(Building.Structure(StructureType.Building))
         )
-        LocalObject(6, SpawnTube.Constructor(Vector3.Zero, Vector3.Zero))
-        ObjectToBuilding(6, 5)
+        addLocalObject(6, SpawnTube.Constructor(Vector3.Zero, Vector3.Zero))
+        linkObjectToBuilding(6, 5)
 
-        LocalBuilding(
+        addLocalBuilding(
           "Building",
-          building_guid = 7,
-          map_id = 3,
+          buildingGuid = 7,
+          mapId = 3,
           FoundationBuilder(Building.Structure(StructureType.Building, Vector3(1, 1, 1)))
         )
-        LocalObject(8, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
-        LocalObject(9, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
-        LocalObject(10, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
-        ObjectToBuilding(8, 7)
-        ObjectToBuilding(9, 7)
-        ObjectToBuilding(10, 7)
+        addLocalObject(8, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
+        addLocalObject(9, SpawnTube.Constructor(Vector3(1, 0, 0), Vector3.Zero))
+        addLocalObject(10, Terminal.Constructor(Vector3.Zero, GlobalDefinitions.dropship_vehicle_terminal))
+        linkObjectToBuilding(8, 7)
+        linkObjectToBuilding(9, 7)
+        linkObjectToBuilding(10, 7)
       }
       val zone = new Zone("test", map6, 1) { override def SetupNumberPools() = {} }
       zone.actor = system.spawn(ZoneActor(zone), "test-init")

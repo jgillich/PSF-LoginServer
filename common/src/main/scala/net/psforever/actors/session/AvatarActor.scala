@@ -312,7 +312,7 @@ class AvatarActor(
                         )
                         .returningGenerated(_.id)
                     )
-                    r <- ctx.run(
+                    _ <- ctx.run(
                       liftQuery(
                         List(
                           persistence.Certification(Certification.MediumAssault.value, id),
@@ -322,7 +322,7 @@ class AvatarActor(
                         )
                       ).foreach(c => query[persistence.Certification].insert(c))
                     )
-                  } yield r
+                  } yield ()
 
                   result.onComplete {
                     case Success(_) =>
@@ -775,7 +775,7 @@ class AvatarActor(
 
               // Activation sound / effect
               session.get.zone.AvatarEvents ! AvatarServiceMessage(
-                session.get.zone.Id,
+                session.get.zone.id,
                 AvatarAction.PlanetsideAttribute(
                   session.get.player.GUID,
                   28,
@@ -812,7 +812,7 @@ class AvatarActor(
 
               // Deactivation sound / effect
               session.get.zone.AvatarEvents ! AvatarServiceMessage(
-                session.get.zone.Id,
+                session.get.zone.id,
                 AvatarAction.PlanetsideAttribute(session.get.player.GUID, 28, implant.definition.implantType.value * 2)
               )
 
@@ -902,7 +902,7 @@ class AvatarActor(
             case Success(_) =>
               sessionActor ! SessionActor.SendResponse(BattleExperienceMessage(session.get.player.GUID, bep, 0))
               session.get.zone.AvatarEvents ! AvatarServiceMessage(
-                session.get.zone.Id,
+                session.get.zone.id,
                 AvatarAction.PlanetsideAttributeToAll(session.get.player.GUID, 17, bep)
               )
               avatar = avatar.copy(bep = bep)
@@ -920,7 +920,7 @@ class AvatarActor(
             case Success(_) =>
               avatar = avatar.copy(cep = cep)
               session.get.zone.AvatarEvents ! AvatarServiceMessage(
-                session.get.zone.Id,
+                session.get.zone.id,
                 AvatarAction.PlanetsideAttributeToAll(session.get.player.GUID, 18, cep)
               )
             case Failure(exception) => log.error(exception)("db failure")
@@ -947,7 +947,7 @@ class AvatarActor(
         case Success(_) =>
           avatar = avatar.copy(cosmetics = Some(cosmetics))
           session.get.zone.AvatarEvents ! AvatarServiceMessage(
-            session.get.zone.Id,
+            session.get.zone.id,
             AvatarAction
               .PlanetsideAttributeToAll(session.get.player.GUID, 106, Cosmetic.valuesToAttributeValue(cosmetics))
           )
@@ -1017,7 +1017,7 @@ class AvatarActor(
         }
         sessionActor ! SessionActor.SendResponse(ActionProgressMessage(slot + 6, 100))
         session.get.zone.AvatarEvents ! AvatarServiceMessage(
-          session.get.zone.Id,
+          session.get.zone.id,
           AvatarAction.SendResponse(
             Service.defaultPlayerGUID,
             AvatarImplantMessage(session.get.player.GUID, ImplantAction.Initialization, slot, 0)
@@ -1188,8 +1188,8 @@ class AvatarActor(
           val doll = new Player(Avatar(0, "doll", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
           doll.ExoSuit = ExoSuitType(loadout.exosuitId)
 
-          loadout.items.split("/").zipWithIndex.foreach {
-            case (value, i) =>
+          loadout.items.split("/").foreach {
+            case value =>
               val (objectType, objectIndex, objectId, toolAmmo) = value.split(",") match {
                 case Array(a, b, c)    => (a, b.toInt, c.toInt, None)
                 case Array(a, b, c, d) => (a, b.toInt, c.toInt, Some(d))

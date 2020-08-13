@@ -39,7 +39,7 @@ object Vehicles {
         tplayer.avatar.vehicle = Some(vehicle.GUID)
         vehicle.AssignOwnership(playerOpt)
         vehicle.Zone.VehicleEvents ! VehicleServiceMessage(
-          vehicle.Zone.Id,
+          vehicle.Zone.id,
           VehicleAction.Ownership(tplayer.GUID, vehicle.GUID)
         )
         Vehicles.ReloadAccessPermissions(vehicle, tplayer.Name)
@@ -256,7 +256,7 @@ object Vehicles {
           tplayer.VehicleSeated = None
           if (tplayer.HasGUID) {
             zone.VehicleEvents ! VehicleServiceMessage(
-              zone.Id,
+              zone.id,
               VehicleAction.KickPassenger(tplayer.GUID, 4, unk2 = false, target.GUID)
             )
           }
@@ -295,12 +295,12 @@ object Vehicles {
       //todo: Send HackMessage -> HackCleared to vehicle? can be found in packet captures. Not sure if necessary.
       // And broadcast the faction change to other clients
       zone.AvatarEvents ! AvatarServiceMessage(
-        zone.Id,
+        zone.id,
         AvatarAction.SetEmpire(Service.defaultPlayerGUID, target.GUID, hacker.Faction)
       )
     }
     zone.LocalEvents ! LocalServiceMessage(
-      zone.Id,
+      zone.id,
       LocalAction.TriggerSound(hacker.GUID, TriggeredSound.HackVehicle, target.Position, 30, 0.49803925f)
     )
     // Clean up after specific vehicles, e.g. remove router telepads

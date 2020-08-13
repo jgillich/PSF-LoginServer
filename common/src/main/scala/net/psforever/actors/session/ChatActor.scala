@@ -181,7 +181,7 @@ class ChatActor(
               case Zoning.Method.InstantAction =>
                 Some("You can't recall to your sanctuary continent while instant actioning")
               case Zoning.Method.Recall => Some("You already requested to recall to your sanctuary continent")
-              case _ if session.zone.Id == Zones.SanctuaryZoneId(session.player.Faction) =>
+              case _ if session.zone.id == Zones.sanctuaryZoneId(session.player.Faction) =>
                 Some("You can't recall to your sanctuary when you are already in your sanctuary")
               case _ if !session.player.isAlive || session.deadState != DeadState.Alive =>
                 Some(if (session.player.isAlive) "@norecall_deconstructing" else "@norecall_dead")
@@ -264,7 +264,7 @@ class ChatActor(
 
           case (CMT_DESTROY, _, contents) =>
             val guid = contents.toInt
-            session.zone.GUID(session.zone.map.TerminalToSpawnPad.getOrElse(guid, guid)) match {
+            session.zone.GUID(session.zone.map.terminalToSpawnPad.getOrElse(guid, guid)) match {
               case Some(pad: VehicleSpawnPad) =>
                 pad.Actor ! VehicleSpawnControl.ProcessControl.Flush
               case Some(turret: FacilityTurret) if turret.isUpgrading =>
@@ -290,7 +290,7 @@ class ChatActor(
                 val continent = session.zone
                 val player    = session.player
                 val loc =
-                  s"zone=${continent.Id} pos=${player.Position.x},${player.Position.y},${player.Position.z}; ori=${player.Orientation.x},${player.Orientation.y},${player.Orientation.z}"
+                  s"zone=${continent.id} pos=${player.Position.x},${player.Position.y},${player.Position.z}; ori=${player.Orientation.x},${player.Orientation.y},${player.Orientation.z}"
                 log.info(loc)
                 sessionActor ! SessionActor.SendResponse(message.copy(contents = loc))
 
@@ -299,7 +299,7 @@ class ChatActor(
                   case None =>
                     Some(session.zone)
                   case Some(id) =>
-                    Zones.zones.get(id)
+                    Zones.zones.find(_.id == id)
                 }
 
                 zone match {
@@ -612,7 +612,7 @@ class ChatActor(
             val popTR    = players.count(_.faction == PlanetSideEmpire.TR)
             val popNC    = players.count(_.faction == PlanetSideEmpire.NC)
             val popVS    = players.count(_.faction == PlanetSideEmpire.VS)
-            val contName = session.zone.map.Name
+            val contName = session.zone.map.name
 
             sessionActor ! SessionActor.SendResponse(
               ChatMsg(ChatMessageType.CMT_WHO, true, "", "That command doesn't work for now, but : ", None)
@@ -680,11 +680,11 @@ class ChatActor(
                   } =>
                 sessionActor ! SessionActor.SetPosition(Vector3(x.toFloat, y.toFloat, z.toFloat))
               case (None, Some(waypoint)) if waypoint != "-help" =>
-                PointOfInterest.getWarpLocation(session.zone.Id, waypoint) match {
+                PointOfInterest.getWarpLocation(session.zone.id, waypoint) match {
                   case Some(location) => sessionActor ! SessionActor.SetPosition(location)
                   case None =>
                     sessionActor ! SessionActor.SendResponse(
-                      ChatMsg(UNK_229, true, "", s"unknown location '$waypoint", None)
+                      ChatMsg(UNK_229, true, "", s"unknown location '$waypoint'", None)
                     )
                 }
               case _ =>

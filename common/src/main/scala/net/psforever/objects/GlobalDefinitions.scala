@@ -24,7 +24,6 @@ import net.psforever.objects.vehicles.{DestroyedVehicle, InternalTelepadDefiniti
 import net.psforever.objects.vital.damage.{DamageCalculations, DamageModifiers}
 import net.psforever.objects.vital.{DamageType, StandardResolutions}
 import net.psforever.types.{ExoSuitType, ImplantType, PlanetSideEmpire, Vector3}
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 
@@ -6599,7 +6598,7 @@ object GlobalDefinitions {
 
     cert_terminal.Name = "cert_terminal"
     val certs = Certification.values.filter(_.cost != 0)
-    val page  = new OrderTerminalDefinition.CertificationPage(certs)
+    val page  = OrderTerminalDefinition.CertificationPage(certs)
     cert_terminal.Tab += 0 -> page
     cert_terminal.MaxHealth = 500
     cert_terminal.Damageable = true
@@ -6955,4 +6954,5 @@ object GlobalDefinitions {
     generator.RepairIfDestroyed = true
     generator.Subtract.Damage1 = 9
   }
+
 }

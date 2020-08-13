@@ -79,7 +79,7 @@ class DoorCloseActor() extends Actor {
       ).sortBy(_.time)
       doorsToClose2.foreach(entry => {
         entry.door.Open = None                                                       //permissible break from synchronization
-        context.parent ! DoorCloseActor.CloseTheDoor(entry.door.GUID, entry.zone.Id) //call up to the main event system
+        context.parent ! DoorCloseActor.CloseTheDoor(entry.door.GUID, entry.zone.id) //call up to the main event system
       })
 
       if (openDoors.nonEmpty) {
