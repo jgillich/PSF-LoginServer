@@ -334,13 +334,6 @@ class Zone(val id: String, val map: ZoneMap, zoneNumber: Int) {
       faction: PlanetSideEmpire.Value,
       spawnGroups: Seq[SpawnGroup]
   ): List[(AmenityOwner, Iterable[SpawnPoint])] = {
-    println(s"${SpawnGroups()
-      .filter {
-        case (building, spawns) =>
-          spawns.nonEmpty &&
-            spawns.exists(_.Offline == false) &&
-            Seq(StructureType.Building).contains(building.BuildingType)
-      }}")
     val ams = spawnGroups.contains(SpawnGroup.AMS)
     val structures = spawnGroups.collect {
       case SpawnGroup.Facility =>

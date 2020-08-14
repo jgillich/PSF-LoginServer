@@ -303,10 +303,10 @@ class SessionActor extends Actor with MDCContextAware {
 
   override def postStop(): Unit = {
     //normally, the player avatar persists a minute or so after disconnect; we are subject to the SessionReaper
-    clientKeepAlive.cancel
-    progressBarUpdate.cancel
-    reviveTimer.cancel
-    respawnTimer.cancel
+    clientKeepAlive.cancel()
+    progressBarUpdate.cancel()
+    reviveTimer.cancel()
+    respawnTimer.cancel()
     galaxyService ! Service.Leave()
     continent.AvatarEvents ! Service.Leave()
     continent.LocalEvents ! Service.Leave()
@@ -339,7 +339,7 @@ class SessionActor extends Actor with MDCContextAware {
       session = session.copy(id = inSessionId)
       leftRef = sender()
       if (pipe.hasNext) {
-        rightRef = pipe.next
+        rightRef = pipe.next()
         rightRef !> HelloFriend(session.id, pipe)
       } else {
         rightRef = sender()
@@ -984,35 +984,39 @@ class SessionActor extends Actor with MDCContextAware {
       log.warn(s"${tplayer.Name} is already spawned on zone ${zone.id}; a clerical error?")
 
     case InterstellarClusterService.SpawnPointResponse(response) =>
-      if (zoningStatus == Zoning.Status.Request && zoningType == Zoning.Method.InstantAction && response.isEmpty) {
-        CancelZoningProcessWithReason("@InstantActionNoHotspotsAvailable")
-      } else {
-        val currentZoningType = zoningType
-        CancelZoningProcess()
-        PlayerActionsToCancel()
-        CancelAllProximityUnits()
-        continent.Population ! Zone.Population.Release(avatar)
-        response match {
-          case Some((zone, spawnPoint)) =>
-            val (pos, ori) = spawnPoint.SpecificPoint(continent.GUID(player.VehicleSeated) match {
-              case Some(obj: Vehicle) if !obj.Destroyed =>
-                obj
-              case _ =>
-                player
-            })
-            LoadZonePhysicalSpawnPoint(zone.id, pos, ori, CountSpawnDelay(zone.id, spawnPoint, continent.id))
-          case None =>
-            currentZoningType match {
-              case Zoning.Method.InstantAction =>
-                sendResponse(
-                  ChatMsg(ChatMessageType.CMT_INSTANTACTION, false, "", "@InstantActionNoHotspotsAvailable", None)
-                )
-              case _ =>
-                log.error("got None spawn point response from InterstellarClusterService")
-                Thread.sleep(1000) // throttle in case of infinite loop
-                RequestSanctuaryZoneSpawn(player, 0)
-            }
-        }
+      zoningType match {
+        case Zoning.Method.InstantAction if response.isEmpty =>
+          CancelZoningProcessWithReason("@InstantActionNoHotspotsAvailable")
+
+        case Zoning.Method.InstantAction if zoningStatus == Zoning.Status.Request =>
+          beginZoningCountdown(() => {
+            cluster ! InterstellarClusterService.GetInstantActionSpawnPoint(player.Faction, context.self)
+          })
+
+        case zoningType =>
+          val currentZoningType = zoningType
+          CancelZoningProcess()
+          PlayerActionsToCancel()
+          CancelAllProximityUnits()
+          continent.Population ! Zone.Population.Release(avatar)
+          response match {
+            case Some((zone, spawnPoint)) =>
+              val obj = continent.GUID(player.VehicleSeated) match {
+                case Some(obj: Vehicle) if !obj.Destroyed =>
+                  obj
+                case _ =>
+                  player
+              }
+              val (pos, ori) = spawnPoint.SpecificPoint(obj)
+              if (zoningType == Zoning.Method.InstantAction)
+                LoadZonePhysicalSpawnPoint(zone.id, pos, ori, 0 seconds)
+              else
+                LoadZonePhysicalSpawnPoint(zone.id, pos, ori, CountSpawnDelay(zone.id, spawnPoint, continent.id))
+            case None =>
+              log.error("got None spawn point response from InterstellarClusterService")
+              Thread.sleep(1000) // throttle in case of infinite loop
+              RequestSanctuaryZoneSpawn(player, 0)
+          }
       }
 
     case msg @ Zone.Vehicle.CanNotSpawn(zone, vehicle, reason) =>
@@ -1355,7 +1359,7 @@ class SessionActor extends Actor with MDCContextAware {
       He may or may not be accompanied by a vehicle at any stage of this process.
      */
     case SetCurrentAvatar(tplayer, max_attempts, attempt) =>
-      respawnTimer.cancel
+      respawnTimer.cancel()
       val waitingOnUpstream = upstreamMessageCount == 0
       if (attempt >= max_attempts && waitingOnUpstream) {
         log.warn(
@@ -1471,7 +1475,7 @@ class SessionActor extends Actor with MDCContextAware {
     case PlayerToken.LoginInfo(name, Zone.Nowhere, _) =>
       log.info(s"LoginInfo: player $name is considered a new character")
       //TODO poll the database for saved zone and coordinates?
-      persist = UpdatePersistence(sender)
+      persist = UpdatePersistence(sender())
       deadState = DeadState.RespawnTime
 
       Deployables.InitializeDeployableQuantities(avatar) //set deployables ui elements
@@ -1489,7 +1493,7 @@ class SessionActor extends Actor with MDCContextAware {
 
     case PlayerToken.LoginInfo(playerName, inZone, pos) =>
       log.info(s"LoginInfo: player $playerName is already logged in zone ${inZone.id}; rejoining that character")
-      persist = UpdatePersistence(sender)
+      persist = UpdatePersistence(sender())
       //tell the old WorldSessionActor to kill itself by using its own subscriptions against itself
       inZone.AvatarEvents ! AvatarServiceMessage(playerName, AvatarAction.TeardownConnection())
       //find and reload previous player
@@ -1566,7 +1570,7 @@ class SessionActor extends Actor with MDCContextAware {
       log.info(s"$msg")
 
     case default =>
-      log.warn(s"Invalid packet class received: $default from $sender")
+      log.warn(s"Invalid packet class received: $default from ${sender()}")
   }
 
   /**
@@ -1607,13 +1611,13 @@ class SessionActor extends Actor with MDCContextAware {
       val (time, origin) = ZoningStartInitialMessageAndTimer()
       zoningCounter = time
       sendResponse(ChatMsg(ChatMessageType.CMT_QUIT, false, "", s"@${descriptor}_$origin", None))
-      zoningTimer.cancel
+      zoningTimer.cancel()
       zoningTimer = context.system.scheduler.scheduleOnce(5 seconds) {
         beginZoningCountdown(runnable)
       }
     } else if (zoningStatus == Zoning.Status.Countdown) {
       zoningCounter -= 5
-      zoningTimer.cancel
+      zoningTimer.cancel()
       if (zoningCounter > 0) {
         if (zoningCountdownMessages.contains(zoningCounter)) {
           sendResponse(ChatMsg(zoningChatMessageType, false, "", s"@${descriptor}_$zoningCounter", None))
@@ -1622,6 +1626,7 @@ class SessionActor extends Actor with MDCContextAware {
           beginZoningCountdown(runnable)
         }
       } else {
+        zoningCounter = 0
         //zoning deployment
         runnable.run()
       }
@@ -1741,7 +1746,7 @@ class SessionActor extends Actor with MDCContextAware {
     * or the process is merely resetting its internal state.
     */
   def CancelZoningProcess(): Unit = {
-    zoningTimer.cancel
+    zoningTimer.cancel()
     zoningType = Zoning.Method.None
     zoningStatus = Zoning.Status.None
     zoningCounter = 0
@@ -1774,7 +1779,7 @@ class SessionActor extends Actor with MDCContextAware {
 
       case AvatarResponse.Revive(target_guid) =>
         if (tplayer_guid == target_guid) {
-          reviveTimer.cancel
+          reviveTimer.cancel()
           deadState = DeadState.Alive
           player.Revive
           val health = player.Health
@@ -1904,7 +1909,7 @@ class SessionActor extends Actor with MDCContextAware {
           )
           shotsWhileDead = 0
         }
-        reviveTimer.cancel
+        reviveTimer.cancel()
         if (player.death_by == 0) {
           reviveTimer = context.system.scheduler.scheduleOnce(respawnTimer) {
             cluster ! InterstellarClusterService.GetRandomSpawnPoint(
@@ -2983,7 +2988,7 @@ class SessionActor extends Actor with MDCContextAware {
     *                         also performs a continuity check to determine if the process has been disrupted
     */
   def HandleProgressChange(delta: Float, completionAction: () => Unit, tickAction: Float => Boolean): Unit = {
-    progressBarUpdate.cancel
+    progressBarUpdate.cancel()
     progressBarValue match {
       case Some(value) =>
         val next = value + delta
@@ -3309,7 +3314,7 @@ class SessionActor extends Actor with MDCContextAware {
         sendResponse(ChatMsg(ChatMessageType.CMT_CULLWATERMARK, false, "", "", None))
         Thread.sleep(40)
         import scala.concurrent.ExecutionContext.Implicits.global
-        clientKeepAlive.cancel
+        clientKeepAlive.cancel()
         clientKeepAlive =
           context.system.scheduler.scheduleWithFixedDelay(0 seconds, 500 milliseconds, self, PokeClient())
         accountIntermediary ! RetrieveAccountData(token)
@@ -3953,7 +3958,7 @@ class SessionActor extends Actor with MDCContextAware {
 
       case msg @ ReleaseAvatarRequestMessage() =>
         log.info(s"ReleaseAvatarRequest: ${player.GUID} on ${continent.id} has released")
-        reviveTimer.cancel
+        reviveTimer.cancel()
         GoToDeploymentMap()
         HandleReleaseAvatar(player, continent)
 
@@ -4127,7 +4132,7 @@ class SessionActor extends Actor with MDCContextAware {
             trigger.Companion = None
           case _ => ;
         }
-        progressBarUpdate.cancel
+        progressBarUpdate.cancel()
         progressBarValue = None
 
       case msg @ EmoteMsg(avatar_guid, emote) =>
@@ -5026,7 +5031,7 @@ class SessionActor extends Actor with MDCContextAware {
         log.info(s"DeployObject: $msg")
         //the hand with the construction item is no longer drawn
         //TODO consider player.Slot(player.LastDrawnSlot)
-        (player.Holsters.find(slot => slot.Equipment.nonEmpty && slot.Equipment.get.GUID == guid) match {
+        (player.Holsters().find(slot => slot.Equipment.nonEmpty && slot.Equipment.get.GUID == guid) match {
           case Some(slot) =>
             slot.Equipment
           case None =>
@@ -5699,7 +5704,7 @@ class SessionActor extends Actor with MDCContextAware {
         sendResponse(TargetingInfoMessage(targetInfo))
       case msg @ ActionCancelMessage(u1, u2, u3) =>
         log.info("Cancelled: " + msg)
-        progressBarUpdate.cancel
+        progressBarUpdate.cancel()
         progressBarValue = None
 
       case default => log.error(s"Unhandled GamePacket $pkt")
@@ -6334,7 +6339,7 @@ class SessionActor extends Actor with MDCContextAware {
                 .sortBy(_.start)
                 .iterator
               while (capacity > 0 && iter.hasNext) {
-                val entry         = iter.next
+                val entry         = iter.next()
                 val item: AmmoBox = entry.obj.asInstanceOf[AmmoBox]
                 val ammoAllocated = math.min(item.FullCapacity - item.Capacity, capacity)
                 log.info(s"ChangeAmmo: putting $ammoAllocated back into a box of ${item.Capacity} $originalAmmoType")
@@ -6759,7 +6764,7 @@ class SessionActor extends Actor with MDCContextAware {
     * This is not a complete list but, for the purpose of enforcement, some pointers will be documented here.
     */
   def PlayerActionsToCancel(): Unit = {
-    progressBarUpdate.cancel
+    progressBarUpdate.cancel()
     progressBarValue = None
     lastTerminalOrderFulfillment = true
     accessedContainer match {
@@ -7101,7 +7106,10 @@ class SessionActor extends Actor with MDCContextAware {
     * @return the duplication of the player, in Standard Exo-Suit and with default equipment loadout
     */
   def RespawnClone(tplayer: Player): Player = {
+    // workaround to make sure player is spawned with full stamina
+    tplayer.avatar = tplayer.avatar.copy(stamina = avatar.maxStamina)
     val obj = Player.Respawn(tplayer)
+    avatarActor ! AvatarActor.RestoreStamina(avatar.maxStamina)
     avatarActor ! AvatarActor.ResetImplants()
     DefinitionUtil.applyDefaultLoadout(obj)
     obj.death_by = tplayer.death_by
@@ -8293,8 +8301,8 @@ class SessionActor extends Actor with MDCContextAware {
     */
   def LoadZonePhysicalSpawnPoint(zoneId: String, pos: Vector3, ori: Vector3, respawnTime: FiniteDuration): Unit = {
     log.info(s"Load in zone $zoneId at position $pos in $respawnTime")
-    respawnTimer.cancel
-    reviveTimer.cancel
+    respawnTimer.cancel()
+    reviveTimer.cancel()
     deadState = DeadState.RespawnTime
     sendResponse(
       AvatarDeadStateMessage(
@@ -8791,14 +8799,6 @@ class SessionActor extends Actor with MDCContextAware {
   }
 
   /**
-    * Remove the equipment from all holsters and from out of the player inventory,
-    * no matter how spacious it is.
-    *
-    * @param target the player who will be stipped of equipment
-    */
-  def ClearHolstersAndInventory(target: Player): Unit = {}
-
-  /**
     * Make this client display the deployment map, and all its available destination spawn points.
     * @see `AvatarDeadStateMessage`
     * @see `DeadState.Release`
@@ -9109,7 +9109,7 @@ class SessionActor extends Actor with MDCContextAware {
     )
     taskResolver ! UnregisterProjectile(projectile)
     projectiles(local_index) match {
-      case Some(obj) if !obj.isResolved => obj.Miss
+      case Some(obj) if !obj.isResolved => obj.Miss()
       case _                            => ;
     }
     projectilesToCleanUp(local_index) = false
@@ -9221,10 +9221,14 @@ class SessionActor extends Actor with MDCContextAware {
     * <br>
     * Even though receiving a `KeepAliveMessage` outside of zoning is uncommon,
     * the behavior should be configured to maintain a neutral action.
+    *
     * @see `KeepAliveMessage`
     * @see `keepAliveFunc`
     */
-  def NormalKeepAlive(): Unit = {}
+  def NormalKeepAlive(): Unit = {
+    // TODO fate might not like this
+    persist()
+  }
 
   /**
     * The atypical response to receiving a `KeepAliveMessage` packet from the client.<br>

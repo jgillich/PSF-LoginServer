@@ -34,29 +34,12 @@ import net.psforever.objects.serverobject.structures.{
 }
 import net.psforever.objects.serverobject.tube.SpawnTube
 import net.psforever.objects.serverobject.turret.{FacilityTurret, FacilityTurretDefinition}
-import net.psforever.objects.zones.{MapInfo, MapScale, Zone, ZoneInfo, ZoneMap}
+import net.psforever.objects.zones.{MapInfo, Zone, ZoneInfo, ZoneMap}
 import net.psforever.types.{PlanetSideEmpire, Vector3}
 import net.psforever.util.DefinitionUtil
-
 import scala.io.Source
 import scala.collection.parallel.CollectionConverters._
 
-/*
-[
-  {
-    "Id": 687,
-    "ObjectName": "Mont",
-    "ObjectType": "amp_station",
-    "Owner": null,
-    "AbsX": 3380.0,
-    "AbsY": 4300.0,
-    "AbsZ": 82.74789,
-    "Yaw": 209.0,
-    "GUID": 1,
-    "MapID": 10,
-    "IsChildObject": false
-  },
- */
 object Zones {
 
   private case class ZoneMapEntity(
@@ -188,34 +171,6 @@ object Zones {
     "ancient_door",
     "ancient_garage_door"
   )
-  /*
-"map01",
-    "map02",
-    "map03",
-    "map04",
-    "map05",
-    "map06",
-    "map07",
-    "map08",
-    "map09",
-    "map10",
-    "map11",
-    "map12",
-    "map13",
-    "map14",
-    "map15",
-    "map16",
-    "ugd01",
-    "ugd02",
-    "ugd03",
-    "ugd04",
-    "ugd05",
-    "ugd06",
-    "map96",
-    "map97",
-    "map98",
-    "map99"
-   */
 
   lazy val zoneMaps: Seq[ZoneMap] = {
     MapInfo.values.par

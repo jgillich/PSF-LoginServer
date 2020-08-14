@@ -259,12 +259,6 @@ class AvatarActor(
           buffer.stash(other)
           Behaviors.same
       }
-      .receiveSignal {
-        case (_, PostStop) =>
-          staminaRegenTimer.cancel()
-          implantTimers.values.foreach(_.cancel())
-          Behaviors.same
-      }
   }
 
   def postStartBehaviour(): Behavior[Command] = {
@@ -929,6 +923,12 @@ class AvatarActor(
 
         case SetCosmetics(cosmetics) =>
           setCosmetics(cosmetics)
+          Behaviors.same
+      }
+      .receiveSignal {
+        case (_, PostStop) =>
+          staminaRegenTimer.cancel()
+          implantTimers.values.foreach(_.cancel())
           Behaviors.same
       }
   }
