@@ -208,7 +208,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
                      case PlanetSideEmpire.TR => GlobalDefinitions.TRMAX
                      case PlanetSideEmpire.VS => GlobalDefinitions.VSMAX
                    }
-                   player.avatar.cooldown(definition) match {
+                   player.avatar.purchaseCooldown(definition) match {
                      case Some(_) =>
                        false
                      case None =>
@@ -343,7 +343,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
                        case PlanetSideEmpire.TR => GlobalDefinitions.TRMAX
                        case PlanetSideEmpire.VS => GlobalDefinitions.VSMAX
                      }
-                     player.avatar.cooldown(definition) match {
+                     player.avatar.purchaseCooldown(definition) match {
                        case Some(_) => false
                        case None =>
                          avatarActor ! AvatarActor.UpdatePurchaseTime(definition)

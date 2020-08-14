@@ -18,8 +18,7 @@ import net.psforever.objects.definition.{
 }
 import net.psforever.objects.equipment.Equipment
 import net.psforever.objects.inventory.InventoryItem
-import net.psforever.objects.loadouts.InfantryLoadout.{DetermineSubtype, DetermineSubtypeB}
-import net.psforever.objects.loadouts.{InfantryLoadout, Loadout, VehicleLoadout}
+import net.psforever.objects.loadouts.{InfantryLoadout, Loadout}
 import net.psforever.objects.serverobject.terminals.ImplantTerminalDefinition
 import net.psforever.objects.{
   Account,
@@ -64,7 +63,7 @@ import net.psforever.util.DefinitionUtil
 import org.joda.time.{LocalDateTime, Period}
 import services.ServiceManager
 import services.avatar.{AvatarAction, AvatarServiceMessage}
-
+import net.psforever.objects.Deployables
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 import scala.util.{Failure, Success}
@@ -128,6 +127,9 @@ object AvatarActor {
   /** Remove a certification using a terminal */
   final case class SellCertification(terminalGuid: PlanetSideGUID, certification: Certification) extends Command
 
+  /** Force-set certifications */
+  final case class SetCertifications(certifications: Set[Certification]) extends Command
+
   /** Save a loadout */
   final case class SaveLoadout(player: Player, loadoutType: LoadoutType.Value, label: Option[String], number: Int)
       extends Command
@@ -138,9 +140,12 @@ object AvatarActor {
   /** Refresh the client's loadouts */
   final case class RefreshLoadouts() extends Command
 
-  /** Set item purchase time for the use of calculating cooldowns */
+  /** Set purchase time for the use of calculating cooldowns */
   final case class UpdatePurchaseTime(definition: BasicDefinition, time: LocalDateTime = LocalDateTime.now())
       extends Command
+
+  /** Set use time for the use of calculating cooldowns */
+  final case class UpdateUseTime(definition: BasicDefinition, time: LocalDateTime = LocalDateTime.now()) extends Command
 
   /** Force refresh the client's item purchase times */
   final case class RefreshPurchaseTimes() extends Command
@@ -438,23 +443,9 @@ class AvatarActor(
                   sessionActor ! SessionActor.SendResponse(
                     PlanetsideAttributeMessage(session.get.player.GUID, 25, cert.value)
                   )
-                // UpdateDeployableUIElements(Deployables.RemoveFromDeployableQuantities(avatar, entry, player.Certifications)
-                /* something like that ?
-        replace.foreach { cert =>
-          val guid = PlanetSideGUID(0)
-          Deployables
-            .RemoveFromDeployableQuantities(avatar, cert, avatar.certifications)
-            .foreach({
-              case (currElem, curr, maxElem, max) =>
-                //fields must update in ordered pairs: max, curr
-                sessionActor ! SessionActor
-                  .SendResponse(PlanetsideAttributeMessage(PlanetSideGUID(0), maxElem, max))
-                sessionActor ! SessionActor
-                  .SendResponse(PlanetsideAttributeMessage(PlanetSideGUID(0), currElem, curr))
-            })
-
-        }
-                 */
+                  updateDeployableUIElements(
+                    Deployables.RemoveFromDeployableQuantities(avatar, cert, avatar.certifications)
+                  )
                 }
                 ctx
                   .run(
@@ -469,9 +460,11 @@ class AvatarActor(
                       )
 
                     case Success(_) =>
-                      // UpdateDeployableUIElements(Deployables.AddToDeployableQuantities(avatar, cert, player.Certifications))
                       sessionActor ! SessionActor.SendResponse(
                         PlanetsideAttributeMessage(session.get.player.GUID, 24, certification.value)
+                      )
+                      updateDeployableUIElements(
+                        Deployables.AddToDeployableQuantities(avatar, certification, avatar.certifications)
                       )
                       avatar = avatar.copy(certifications = avatar.certifications.diff(replace) + certification)
                       sessionActor ! SessionActor.SendResponse(
@@ -480,21 +473,6 @@ class AvatarActor(
                   }
 
             }
-          Behaviors.same
-
-        case CreateImplants() =>
-          avatar.implants.zipWithIndex.foreach {
-            case (Some(implant), index) =>
-              sessionActor ! SessionActor.SendResponse(
-                AvatarImplantMessage(
-                  session.get.player.GUID,
-                  ImplantAction.Add,
-                  index,
-                  implant.definition.implantType.value
-                )
-              )
-            case _ => ;
-          }
           Behaviors.same
 
         case SellCertification(terminalGuid, certification) =>
@@ -536,15 +514,76 @@ class AvatarActor(
                   sessionActor ! SessionActor.SendResponse(
                     PlanetsideAttributeMessage(session.get.player.GUID, 25, cert.value)
                   )
-                /* UpdateDeployableUIElements(
-                                   Deployables.RemoveFromDeployableQuantities(avatar, entry, player.Certifications)
-                                 )*/
+                  updateDeployableUIElements(
+                    Deployables.RemoveFromDeployableQuantities(avatar, cert, avatar.certifications)
+                  )
                 }
                 avatar = avatar.copy(certifications = avatar.certifications.diff(remove))
                 sessionActor ! SessionActor.SendResponse(
                   ItemTransactionResultMessage(terminalGuid, TransactionType.Sell, success = true)
                 )
             }
+          Behaviors.same
+
+        case SetCertifications(certifications) =>
+          import ctx._
+          Future
+            .sequence(
+              avatar.certifications
+                .diff(certifications)
+                .map(cert => {
+                  sessionActor ! SessionActor.SendResponse(
+                    PlanetsideAttributeMessage(session.get.player.GUID, 25, cert.value)
+                  )
+                  updateDeployableUIElements(
+                    Deployables.RemoveFromDeployableQuantities(avatar, cert, avatar.certifications)
+                  )
+                  ctx
+                    .run(
+                      query[persistence.Certification]
+                        .filter(_.avatarId == lift(avatar.id))
+                        .filter(_.id == lift(cert.value))
+                        .delete
+                    )
+                }) ++
+                certifications
+                  .diff(avatar.certifications)
+                  .map(cert => {
+                    sessionActor ! SessionActor.SendResponse(
+                      PlanetsideAttributeMessage(session.get.player.GUID, 24, cert.value)
+                    )
+                    updateDeployableUIElements(
+                      Deployables.AddToDeployableQuantities(avatar, cert, avatar.certifications)
+                    )
+                    ctx
+                      .run(
+                        query[persistence.Certification]
+                          .insert(_.id -> lift(cert.value), _.avatarId -> lift(avatar.id))
+                      )
+                  })
+            )
+            .onComplete {
+              case Success(_) =>
+                avatar = avatar.copy(certifications = certifications)
+              case Failure(exception) =>
+                log.error(exception)("db failure")
+            }
+
+          Behaviors.same
+
+        case CreateImplants() =>
+          avatar.implants.zipWithIndex.foreach {
+            case (Some(implant), index) =>
+              sessionActor ! SessionActor.SendResponse(
+                AvatarImplantMessage(
+                  session.get.player.GUID,
+                  ImplantAction.Add,
+                  index,
+                  implant.definition.implantType.value
+                )
+              )
+            case _ => ;
+          }
           Behaviors.same
 
         case LearnImplant(terminalGuid, definition) =>
@@ -688,6 +727,13 @@ class AvatarActor(
           avatar = avatar.copy(purchaseTimes = avatar.purchaseTimes.updated(definition.Name, time))
           // we could be more selective and only send what changed, but it doesn't hurt to refresh everything
           context.self ! RefreshPurchaseTimes()
+          Behaviors.same
+
+        case UpdateUseTime(definition, time) =>
+          if (!Avatar.useCooldowns.contains(definition)) {
+            log.warn(s"UpdateUseTime message for item '${definition.Name}' without cooldown")
+          }
+          avatar = avatar.copy(useTimes = avatar.useTimes.updated(definition.Name, time))
           Behaviors.same
 
         case RefreshPurchaseTimes() =>
@@ -1251,6 +1297,17 @@ class AvatarActor(
           }
         case _ => ;
       }
+    })
+  }
+
+  // same as in SA, this really doesn't belong here
+  def updateDeployableUIElements(list: List[(Int, Int, Int, Int)]): Unit = {
+    val guid = PlanetSideGUID(0)
+    list.foreach({
+      case ((currElem, curr, maxElem, max)) =>
+        //fields must update in ordered pairs: max, curr
+        sessionActor ! SessionActor.SendResponse(PlanetsideAttributeMessage(guid, maxElem, max))
+        sessionActor ! SessionActor.SendResponse(PlanetsideAttributeMessage(guid, currElem, curr))
     })
   }
 

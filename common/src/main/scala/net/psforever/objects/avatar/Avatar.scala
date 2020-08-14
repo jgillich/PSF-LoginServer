@@ -48,7 +48,7 @@ object Avatar {
     GlobalDefinitions.VSMAX                 -> 5.minutes,
     GlobalDefinitions.NCMAX                 -> 5.minutes,
     GlobalDefinitions.TRMAX                 -> 5.minutes,
-    // TODO configurable option for the original MAX cooldown system (per weapon) instead of the current global cooldown
+    // TODO weapon based cooldown
     GlobalDefinitions.nchev_sparrow       -> 5.minutes,
     GlobalDefinitions.nchev_falcon        -> 5.minutes,
     GlobalDefinitions.nchev_scattercannon -> 5.minutes,
@@ -57,11 +57,14 @@ object Avatar {
     GlobalDefinitions.vshev_starfire      -> 5.minutes,
     GlobalDefinitions.trhev_burster       -> 5.minutes,
     GlobalDefinitions.trhev_dualcycler    -> 5.minutes,
-    GlobalDefinitions.trhev_pounder       -> 5.minutes,
-    GlobalDefinitions.medkit              -> 5.seconds,
-    GlobalDefinitions.super_armorkit      -> 20.minutes,
-    GlobalDefinitions.super_medkit        -> 20.minutes,
-    GlobalDefinitions.super_staminakit    -> 20.minutes
+    GlobalDefinitions.trhev_pounder       -> 5.minutes
+  )
+
+  val useCooldowns: Map[BasicDefinition, FiniteDuration] = Map(
+    GlobalDefinitions.medkit           -> 5.seconds,
+    GlobalDefinitions.super_armorkit   -> 20.minutes,
+    GlobalDefinitions.super_medkit     -> 20.minutes,
+    GlobalDefinitions.super_staminakit -> 20.minutes
   )
 }
 
@@ -92,17 +95,22 @@ case class Avatar(
         FirstTimeEvents.TR.All ++ FirstTimeEvents.NC.All ++ FirstTimeEvents.VS.All ++
         FirstTimeEvents.Generic,
     /** Timestamps of when a vehicle or equipment was last purchased */
-    purchaseTimes: Map[String, LocalDateTime] = Map()
+    purchaseTimes: Map[String, LocalDateTime] = Map(),
+    /** Timestamps of when a vehicle or equipment was last purchased */
+    useTimes: Map[String, LocalDateTime] = Map()
 ) {
   val br: BattleRank  = BattleRank.withExperience(bep)
   val cr: CommandRank = CommandRank.withExperience(cep)
 
-  /** Returns the remaining object cooldown or None if an object is not on cooldown */
-  def cooldown(definition: BasicDefinition): Option[Period] = {
-    purchaseTimes.get(definition.Name) match {
+  private def cooldown(
+      times: Map[String, LocalDateTime],
+      cooldowns: Map[BasicDefinition, FiniteDuration],
+      definition: BasicDefinition
+  ): Option[Period] = {
+    times.get(definition.Name) match {
       case Some(purchaseTime) =>
         val secondsSincePurchase = new Period(purchaseTime, LocalDateTime.now()).toStandardSeconds.getSeconds
-        Avatar.purchaseCooldowns.get(definition) match {
+        cooldowns.get(definition) match {
           case Some(cooldown) if (cooldown.toSeconds - secondsSincePurchase) > 0 =>
             Some(Period.seconds(cooldown.toSeconds.toInt - secondsSincePurchase))
           case _ => None
@@ -110,6 +118,16 @@ case class Avatar(
       case None =>
         None
     }
+  }
+
+  /** Returns the remaining purchase cooldown or None if an object is not on cooldown */
+  def purchaseCooldown(definition: BasicDefinition): Option[Period] = {
+    cooldown(purchaseTimes, Avatar.purchaseCooldowns, definition)
+  }
+
+  /** Returns the remaining use cooldown or None if an object is not on cooldown */
+  def useCooldown(definition: BasicDefinition): Option[Period] = {
+    cooldown(useTimes, Avatar.useCooldowns, definition)
   }
 
   def fifthSlot(): EquipmentSlot = {

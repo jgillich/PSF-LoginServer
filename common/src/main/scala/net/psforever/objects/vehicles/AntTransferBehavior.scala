@@ -55,7 +55,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
   }
 
   def HandleChargingEvent(target: TransferContainer): Boolean = {
-    ntuChargingTick.cancel
+    ntuChargingTick.cancel()
     val obj = ChargeTransferObject
     //log.trace(s"NtuCharging: Vehicle $guid is charging NTU capacitor.")
     if (obj.NtuCapacitor < obj.Definition.MaxNtuCapacitor) {
@@ -101,7 +101,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
       transferTarget = Some(target)
       transferEvent = TransferBehavior.Event.Discharging
       target.Actor ! Ntu.Offer(obj)
-      ntuChargingTick.cancel
+      ntuChargingTick.cancel()
       ntuChargingTick = context.system.scheduler.scheduleOnce(
         delay = 1000 milliseconds,
         self,
@@ -139,7 +139,7 @@ trait AntTransferBehavior extends TransferBehavior with NtuStorageBehavior {
   /** Stopping */
   override def TryStopChargingEvent(container: TransferContainer): Unit = {
     val vehicle = ChargeTransferObject
-    ntuChargingTick.cancel
+    ntuChargingTick.cancel()
     if (transferEvent != TransferBehavior.Event.None) {
       if (vehicle.DeploymentState == DriveState.Deployed) {
         //turning off glow/orb effects on ANT doesn't seem to work when deployed. Try to undeploy ANT first

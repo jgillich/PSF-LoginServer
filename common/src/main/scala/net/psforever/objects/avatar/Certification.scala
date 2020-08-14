@@ -19,7 +19,7 @@ sealed abstract class Certification(
 
 case object Certification extends IntEnum[Certification] {
 
-  case object StandardAssault extends Certification(value = 0, name = "", cost = 0)
+  case object StandardAssault extends Certification(value = 0, name = "standard_assault", cost = 0)
 
   case object MediumAssault extends Certification(value = 1, name = "medium_assault", cost = 2)
 
@@ -74,7 +74,7 @@ case object Certification extends IntEnum[Certification] {
   case object GroundSupport extends Certification(value = 17, name = "ground_support", cost = 2)
 
   case object BattleFrameRobotics
-      extends Certification(value = 18, name = "", cost = 4, requires = Set(ArmoredAssault2)) // TODO name
+      extends Certification(value = 18, name = "TODO2", cost = 4, requires = Set(ArmoredAssault2)) // TODO name
 
   case object Flail extends Certification(value = 19, name = "flail", cost = 1, requires = Set(ArmoredAssault2))
 
@@ -87,14 +87,14 @@ case object Certification extends IntEnum[Certification] {
   case object GalaxyGunship extends Certification(value = 23, name = "gunship", cost = 2, requires = Set(AirSupport))
 
   case object BFRAntiAircraft
-      extends Certification(value = 24, name = "", cost = 1, requires = Set(BattleFrameRobotics))
+      extends Certification(value = 24, name = "TODO3", cost = 1, requires = Set(BattleFrameRobotics))
 
   case object BFRAntiInfantry
-      extends Certification(value = 25, name = "", cost = 1, requires = Set(BattleFrameRobotics)) // TODO name
+      extends Certification(value = 25, name = "TODO4", cost = 1, requires = Set(BattleFrameRobotics)) // TODO name
 
-  case object StandardExoSuit extends Certification(value = 26, name = "", cost = 0)
+  case object StandardExoSuit extends Certification(value = 26, name = "TODO5", cost = 0)
 
-  case object AgileExoSuit extends Certification(value = 27, name = "", cost = 0)
+  case object AgileExoSuit extends Certification(value = 27, name = "agile_armor", cost = 0)
 
   case object ReinforcedExoSuit extends Certification(value = 28, name = "reinforced_armor", cost = 3)
 

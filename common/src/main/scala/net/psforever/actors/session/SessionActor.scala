@@ -2217,7 +2217,7 @@ class SessionActor extends Actor with MDCContextAware {
       slots: List[InventoryItem]
   ): Unit = {
     slots.foreach { item =>
-      player.avatar.cooldown(item.obj.Definition) match {
+      player.avatar.purchaseCooldown(item.obj.Definition) match {
         case Some(_) => ;
         case None =>
           if (Avatar.purchaseCooldowns.contains(item.obj.Definition)) {
@@ -2455,11 +2455,12 @@ class SessionActor extends Actor with MDCContextAware {
         CancelZoningProcessWithDescriptiveReason("cancel_use")
         CancelAllProximityUnits()
         MountingAction(tplayer, obj, seat_num)
+        // the player will receive no messages consistently except the KeepAliveMessage echo
+        keepAliveFunc = KeepAlivePersistence
 
       case Mountable.CanMount(obj: Vehicle, seat_num) =>
         CancelZoningProcessWithDescriptiveReason("cancel_mount")
-        val obj_guid: PlanetSideGUID    = obj.GUID
-        val player_guid: PlanetSideGUID = tplayer.GUID
+        val obj_guid: PlanetSideGUID = obj.GUID
         log.info(s"MountVehicleMsg: ${player.Name}_guid mounts $obj_guid @ $seat_num")
         CancelAllProximityUnits()
         sendResponse(PlanetsideAttributeMessage(obj_guid, 0, obj.Health))
@@ -2478,7 +2479,7 @@ class SessionActor extends Actor with MDCContextAware {
             obj.Cloaked = tplayer.Cloaked
           }
         } else if (obj.Seats(seat_num).ControlledWeapon.isEmpty) {
-          //the player will receive no messages consistently except the KeepAliveMessage echo
+          // the player will receive no messages consistently except the KeepAliveMessage echo
           keepAliveFunc = KeepAlivePersistence
         }
         AccessContents(obj)
@@ -2494,6 +2495,8 @@ class SessionActor extends Actor with MDCContextAware {
           sendResponse(PlanetsideAttributeMessage(obj.GUID, 0, obj.Health))
           UpdateWeaponAtSeatPosition(obj, seat_num)
           MountingAction(tplayer, obj, seat_num)
+          // the player will receive no messages consistently except the KeepAliveMessage echo
+          keepAliveFunc = KeepAlivePersistence
         } else {
           log.warn(
             s"MountVehicleMsg: ${tplayer.Name} wants to mount turret ${obj.GUID.guid}, but needs to wait until it finishes updating"
@@ -2505,6 +2508,8 @@ class SessionActor extends Actor with MDCContextAware {
         sendResponse(PlanetsideAttributeMessage(obj.GUID, 0, obj.Health))
         UpdateWeaponAtSeatPosition(obj, seat_num)
         MountingAction(tplayer, obj, seat_num)
+        // the player will receive no messages consistently except the KeepAliveMessage echo
+        keepAliveFunc = KeepAlivePersistence
 
       case Mountable.CanMount(obj: Mountable, _) =>
         log.warn(s"MountVehicleMsg: $obj is some generic mountable object and nothing will happen")
@@ -2563,7 +2568,7 @@ class SessionActor extends Actor with MDCContextAware {
   def HandleTerminalMessage(tplayer: Player, msg: ItemTransactionMessage, order: Terminal.Exchange): Unit = {
     order match {
       case Terminal.BuyEquipment(item) =>
-        tplayer.avatar.cooldown(item.Definition) match {
+        tplayer.avatar.purchaseCooldown(item.Definition) match {
           case Some(_) =>
             lastTerminalOrderFulfillment = true
             sendResponse(ItemTransactionResultMessage(msg.terminal_guid, TransactionType.Buy, false))
@@ -2599,7 +2604,7 @@ class SessionActor extends Actor with MDCContextAware {
       case Terminal.BuyVehicle(vehicle, weapons, trunk) =>
         continent.map.terminalToSpawnPad.get(msg.terminal_guid.guid) match {
           case Some(padGuid) =>
-            tplayer.avatar.cooldown(vehicle.Definition) match {
+            tplayer.avatar.purchaseCooldown(vehicle.Definition) match {
               case Some(_) =>
                 sendResponse(ItemTransactionResultMessage(msg.terminal_guid, TransactionType.Buy, success = false))
               case None =>
@@ -4584,7 +4589,7 @@ class SessionActor extends Actor with MDCContextAware {
             } else if (!unk3 && player.isAlive) { //potential kit use
               ValidObject(item_used_guid) match {
                 case Some(kit: Kit) =>
-                  player.avatar.cooldown(kit.Definition) match {
+                  player.avatar.useCooldown(kit.Definition) match {
                     case Some(cooldown) =>
                       sendResponse(
                         ChatMsg(
@@ -4681,7 +4686,7 @@ class SessionActor extends Actor with MDCContextAware {
                       }
                       if (kitIsUsed) {
                         //kit was found belonging to player and was used
-                        avatarActor ! AvatarActor.UpdatePurchaseTime(kit.Definition)
+                        avatarActor ! AvatarActor.UpdateUseTime(kit.Definition)
                         player.Slot(indexOpt.get).Equipment =
                           None //remove from slot immediately; must exist on client for next packet
                         sendResponse(
@@ -9225,10 +9230,7 @@ class SessionActor extends Actor with MDCContextAware {
     * @see `KeepAliveMessage`
     * @see `keepAliveFunc`
     */
-  def NormalKeepAlive(): Unit = {
-    // TODO fate might not like this
-    persist()
-  }
+  def NormalKeepAlive(): Unit = {}
 
   /**
     * The atypical response to receiving a `KeepAliveMessage` packet from the client.<br>

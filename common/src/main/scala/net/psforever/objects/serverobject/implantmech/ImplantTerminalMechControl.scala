@@ -44,7 +44,7 @@ class ImplantTerminalMechControl(mech: ImplantTerminalMech)
           //TODO setup certifications check
           mech.Owner match {
             case b: Building if (b.Faction != player.Faction || b.CaptureTerminalIsHacked) && mech.HackedBy.isEmpty =>
-              sender ! CommonMessages.Progress(
+              sender() ! CommonMessages.Progress(
                 GenericHackables.GetHackSpeed(player, mech),
                 GenericHackables.FinishHacking(mech, player, 3212836864L),
                 GenericHackables.HackingTickAction(progressType = 1, player, mech, item.GUID)

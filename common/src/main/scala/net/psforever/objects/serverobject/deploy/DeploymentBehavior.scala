@@ -25,13 +25,13 @@ trait DeploymentBehavior {
 
   val deployBehavior: Receive = {
     case Deployment.TryDeploymentChange(state) =>
-      sender ! TryDeploymentStateChange(state)
+      sender() ! TryDeploymentStateChange(state)
 
     case Deployment.TryDeploy(state) =>
-      sender ! TryDeployStateChange(state)
+      sender() ! TryDeployStateChange(state)
 
     case Deployment.TryUndeploy(state) =>
-      sender ! TryUndeployStateChange(state)
+      sender() ! TryUndeployStateChange(state)
   }
 
   def TryDeploymentStateChange(state: DriveState.Value): Any = {

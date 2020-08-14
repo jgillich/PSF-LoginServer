@@ -5,7 +5,7 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.{ActorRef, Behavior, PostStop, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, StashBuffer}
 import net.psforever.actors.zone.BuildingActor
-import net.psforever.objects.avatar.{BattleRank, CommandRank, Cosmetic}
+import net.psforever.objects.avatar.{BattleRank, Certification, CommandRank, Cosmetic}
 import net.psforever.objects.serverobject.pad.{VehicleSpawnControl, VehicleSpawnPad}
 import net.psforever.objects.{Default, GlobalDefinitions, Player, Session}
 import net.psforever.objects.serverobject.resourcesilo.ResourceSilo
@@ -385,6 +385,7 @@ class ChatActor(
                       }
                     )
                   )
+
                 case _ =>
                 // unknown ! commands are ignored
               }
@@ -815,6 +816,39 @@ class ChatActor(
                   contents = s"@${message.messageType.toString}_${if (on) "on" else "off"}"
                 )
               )
+
+            case (CMT_ADDCERTIFICATION, _, contents) if session.account.gm =>
+              val certs = contents.split(" ").filter(_ != "").map(name => Certification.values.find(_.name == name))
+              if (certs.nonEmpty) {
+                if (certs.contains(None)) {
+                  sessionActor ! SessionActor.SendResponse(
+                    message.copy(
+                      messageType = UNK_229,
+                      contents = s"@AckErrorCertifications"
+                    )
+                  )
+                } else {
+                  avatarActor ! AvatarActor.SetCertifications(session.avatar.certifications ++ certs.flatten)
+                  sessionActor ! SessionActor.SendResponse(
+                    message.copy(
+                      messageType = UNK_229,
+                      contents = s"@AckSuccessCertifications"
+                    )
+                  )
+                }
+              } else {
+                if (session.avatar.certifications.size < Certification.values.size) {
+                  avatarActor ! AvatarActor.SetCertifications(Certification.values.toSet)
+                } else {
+                  avatarActor ! AvatarActor.SetCertifications(Set())
+                }
+                sessionActor ! SessionActor.SendResponse(
+                  message.copy(
+                    messageType = UNK_229,
+                    contents = s"@AckSuccessCertifications"
+                  )
+                )
+              }
 
             case _ =>
               log.info(s"unhandled chat message $message")

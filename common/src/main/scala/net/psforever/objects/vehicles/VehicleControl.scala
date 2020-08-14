@@ -89,7 +89,7 @@ class VehicleControl(vehicle: Vehicle)
   override def postStop(): Unit = {
     super.postStop()
     decaying = false
-    decayTimer.cancel
+    decayTimer.cancel()
     vehicle.Utilities.values.foreach { util =>
       context.stop(util().Actor)
       util().Actor = Default.Actor
@@ -130,7 +130,7 @@ class VehicleControl(vehicle: Vehicle)
               GainOwnership(player) //gain new ownership
             } else {
               decaying = false
-              decayTimer.cancel
+              decayTimer.cancel()
             }
           }
 
@@ -174,13 +174,13 @@ class VehicleControl(vehicle: Vehicle)
               case (_: Int, util: Utility) => util().Actor forward FactionAffinity.ConfirmFactionAffinity()
             })
           }
-          sender ! FactionAffinity.AssertFactionAffinity(vehicle, faction)
+          sender() ! FactionAffinity.AssertFactionAffinity(vehicle, faction)
 
         case CommonMessages.Use(player, Some(item: SimpleItem))
             if item.Definition == GlobalDefinitions.remote_electronics_kit =>
           //TODO setup certifications check
           if (vehicle.Faction != player.Faction) {
-            sender ! CommonMessages.Progress(
+            sender() ! CommonMessages.Progress(
               GenericHackables.GetHackSpeed(player, vehicle),
               Vehicles.FinishHackingVehicle(vehicle, player, 3212836864L),
               GenericHackables.HackingTickAction(progressType = 1, player, vehicle, item.GUID)
@@ -246,7 +246,7 @@ class VehicleControl(vehicle: Vehicle)
           time match {
             case Some(delay) =>
               decaying = true
-              decayTimer.cancel
+              decayTimer.cancel()
               decayTimer = context.system.scheduler.scheduleOnce(delay, self, VehicleControl.PrepareForDeletion())
             case _ =>
               PrepareForDeletion()
@@ -278,7 +278,7 @@ class VehicleControl(vehicle: Vehicle)
       ) {
         mountBehavior.apply(msg)
       } else {
-        sender ! Mountable.MountMessages(user, Mountable.CanNotMount(vehicle, seat_num))
+        sender() ! Mountable.MountMessages(user, Mountable.CanNotMount(vehicle, seat_num))
       }
   }
 
@@ -381,7 +381,7 @@ class VehicleControl(vehicle: Vehicle)
     Vehicles.Own(MountableObject, player) match {
       case Some(_) =>
         decaying = false
-        decayTimer.cancel
+        decayTimer.cancel()
       case None => ;
     }
   }

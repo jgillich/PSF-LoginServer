@@ -57,7 +57,7 @@ trait CargoBehavior {
         }
         isMounting = Some(carrier_guid)
         import scala.concurrent.ExecutionContext.Implicits.global
-        cargoMountTimer.cancel
+        cargoMountTimer.cancel()
         cargoMountTimer = context.system.scheduler.scheduleOnce(
           250 milliseconds,
           self,
@@ -75,7 +75,7 @@ trait CargoBehavior {
       ) {
         isDismounting = Some(carrier_guid)
         import scala.concurrent.ExecutionContext.Implicits.global
-        cargoDismountTimer.cancel
+        cargoDismountTimer.cancel()
         cargoDismountTimer = context.system.scheduler.scheduleOnce(
           250 milliseconds,
           self,

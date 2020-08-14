@@ -60,7 +60,7 @@ class FacilityTurretControl(turret: FacilityTurret)
                 if turret.Upgrade != upgrade && turret.Definition.Weapons.values
                   .flatMap(_.keySet)
                   .exists(_ == upgrade) =>
-              sender ! CommonMessages.Progress(
+              sender() ! CommonMessages.Progress(
                 1.25f,
                 WeaponTurrets.FinishUpgradingMannedTurret(turret, player, item, upgrade),
                 GenericHackables.HackingTickAction(progressType = 2, player, turret, item.GUID)
