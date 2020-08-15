@@ -173,6 +173,11 @@ object Zones {
   )
 
   lazy val zoneMaps: Seq[ZoneMap] = {
+    val res  = Source.fromResource(s"zonemaps/lattice.json")
+    val json = res.mkString
+    res.close()
+    val lattice = parse(json).toOption.get
+
     MapInfo.values.par
       .map { info =>
         val data =
@@ -277,8 +282,15 @@ object Zones {
             zoneMap.addLocalObject(_, LocalProjectile.Constructor)
           }
 
-          zoneMap
+          lattice.asObject.get(info.value).foreach { obj =>
+            obj.asArray.get.foreach { entry =>
+              val arr = entry.asArray.get
+              println(s"${arr}")
+              zoneMap.latticeLink((arr(0).asString.get, arr(1).asString.get))
+            }
+          }
 
+          zoneMap
       }
       .seq
   }

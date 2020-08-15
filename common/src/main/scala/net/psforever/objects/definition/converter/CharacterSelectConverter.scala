@@ -144,7 +144,7 @@ class CharacterSelectConverter extends AvatarConverter {
     if (!iter.hasNext) {
       list
     } else {
-      val slot: EquipmentSlot = iter.next
+      val slot: EquipmentSlot = iter.next()
       slot.Equipment match {
         case Some(equip: Tool) =>
           val jammed = equip.Jammed

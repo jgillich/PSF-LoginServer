@@ -171,7 +171,7 @@ class Player(var avatar: Avatar)
     } else if (slot > -1 && slot < 5) {
       holsters(slot)
     } else if (slot == 5) {
-      avatar.fifthSlot
+      avatar.fifthSlot()
     } else if (slot == Player.FreeHandSlot) {
       freeHand
     } else {
@@ -206,7 +206,7 @@ class Player(var avatar: Avatar)
     if (!iter.hasNext) {
       None
     } else {
-      val slot = iter.next
+      val slot = iter.next()
       if (slot.Equipment.isEmpty && slot.Size.equals(objSize)) {
         Some(index)
       } else {
@@ -246,7 +246,7 @@ class Player(var avatar: Avatar)
     if (!iter.hasNext) {
       None
     } else {
-      val slot = iter.next
+      val slot = iter.next()
       if (slot.Equipment.isDefined && slot.Equipment.get.GUID == guid) {
         Some(index)
       } else {

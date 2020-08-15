@@ -59,12 +59,12 @@ trait ContainableBehavior {
 
     case msg: ContainableMsg if waitOnMoveItemOps == 2 =>
       //all standard messages are blocked
-      RepeatMessageLater(ContainableBehavior.Defer(msg, sender))
+      RepeatMessageLater(ContainableBehavior.Defer(msg, sender()))
       MessageDeferredCallback(msg)
 
     case msg: DeferrableMsg if waitOnMoveItemOps == 1 =>
       //insertion messages not related to an item move attempt are blocked
-      RepeatMessageLater(ContainableBehavior.Defer(msg, sender))
+      RepeatMessageLater(ContainableBehavior.Defer(msg, sender()))
       MessageDeferredCallback(msg)
 
     /* normal messages */

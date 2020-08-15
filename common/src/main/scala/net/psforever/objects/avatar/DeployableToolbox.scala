@@ -137,8 +137,8 @@ class DeployableToolbox {
     *        `false`, otherwise
     */
   def Available(obj: DeployableToolbox.AcceptableDeployable): Boolean = {
-    deployableCounts(DeployableToolbox.UnifiedType(obj.Definition.Item)).Available &&
-    categoryCounts(obj.Definition.DeployCategory).Available
+    deployableCounts(DeployableToolbox.UnifiedType(obj.Definition.Item)).Available() &&
+    categoryCounts(obj.Definition.DeployCategory).Available()
   }
 
   /**

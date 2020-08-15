@@ -162,7 +162,7 @@ class CorpseConverter extends AvatarConverter {
     if (!iter.hasNext) {
       list
     } else {
-      val slot: EquipmentSlot = iter.next
+      val slot: EquipmentSlot = iter.next()
       if (slot.Equipment.isDefined) {
         val equip: Equipment = slot.Equipment.get
         recursiveMakeHolsters(

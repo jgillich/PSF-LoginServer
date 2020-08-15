@@ -44,8 +44,10 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
     */
   override def postStop(): Unit = {
     super.postStop()
-    task.cancel
-    list.foreach { UpgradeTurretAmmo }
+    task.cancel()
+    list.foreach {
+      UpgradeTurretAmmo
+    }
     list = Nil
     taskResolver = ActorRef.noSender
   }
@@ -95,7 +97,7 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
           }
 
         case TurretUpgrader.Downgrade() =>
-          task.cancel
+          task.cancel()
           val now: Long = System.nanoTime
           val (in, out) =
             list.partition(entry => {
@@ -109,7 +111,7 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
       }
 
   def RetimeFirstTask(now: Long = System.nanoTime): Unit = {
-    task.cancel
+    task.cancel()
     if (list.nonEmpty) {
       val short_timeout: FiniteDuration = math.max(1, list.head.duration - (now - list.head.time)) nanoseconds
       import scala.concurrent.ExecutionContext.Implicits.global
@@ -133,8 +135,10 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
 
   def HurryAll(): Unit = {
     trace("all tasks have been hurried")
-    task.cancel
-    list.foreach { UpgradeTurretAmmo }
+    task.cancel()
+    list.foreach {
+      UpgradeTurretAmmo
+    }
     list = Nil
   }
 
@@ -152,7 +156,7 @@ class TurretUpgrader extends SupportActor[TurretUpgrader.Entry] {
   }
 
   def ClearAll(): Unit = {
-    task.cancel
+    task.cancel()
     list = Nil
   }
 

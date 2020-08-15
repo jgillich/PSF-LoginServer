@@ -136,7 +136,7 @@ class ProximityTerminalControl(term: Terminal with ProximityUnit)
       callbacks.remove(whereTarget)
       //de-activation (global / local)
       if (term.NumberUsers == 0 && hadUsers) {
-        terminalAction.cancel
+        terminalAction.cancel()
         TerminalObject.Zone.LocalEvents ! Terminal.StopProximityEffect(term)
       }
     } else {

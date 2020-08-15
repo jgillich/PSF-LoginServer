@@ -34,7 +34,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
         case player @ Some(tplayer) =>
           tplayer.Zone = Zone.Nowhere
           PlayerLeave(tplayer)
-          sender ! Zone.Population.PlayerHasLeft(zone, player)
+          sender() ! Zone.Population.PlayerHasLeft(zone, player)
           if (playerMap.isEmpty) {
             zone.StopPlayerManagementSystems()
           }
@@ -45,7 +45,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
         case Some((tplayer, newToZone)) =>
           tplayer.Zone = zone
           if (tplayer ne player) {
-            sender ! Zone.Population.PlayerAlreadySpawned(zone, player)
+            sender() ! Zone.Population.PlayerAlreadySpawned(zone, player)
           } else if (newToZone) {
             player.Actor = context.actorOf(
               Props(classOf[PlayerControl], player, avatarActor),
@@ -54,7 +54,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
             player.Zone = zone
           }
         case None =>
-          sender ! Zone.Population.PlayerCanNotSpawn(zone, player)
+          sender() ! Zone.Population.PlayerCanNotSpawn(zone, player)
       }
 
     case Zone.Population.Release(avatar) =>
@@ -62,7 +62,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
         case Some(tplayer) =>
           PlayerLeave(tplayer)
         case None =>
-          sender ! Zone.Population.PlayerHasLeft(zone, None)
+          sender() ! Zone.Population.PlayerHasLeft(zone, None)
       }
 
     case Zone.Corpse.Add(player) =>

@@ -25,7 +25,7 @@ class AccountIntermediaryService extends Actor {
   private val IPAddressBySessionID = mutable.Map[Long, IPAddress]()
   private[this] val log            = org.log4s.getLogger
 
-  override def preStart = {
+  override def preStart() = {
     log.trace("Starting...")
   }
 
@@ -59,6 +59,6 @@ class AccountIntermediaryService extends Actor {
       }
 
     case msg =>
-      log.warn(s"Unhandled message $msg from $sender")
+      log.warn(s"Unhandled message $msg from ${sender()}")
   }
 }

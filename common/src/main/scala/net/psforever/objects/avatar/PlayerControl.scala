@@ -1,7 +1,7 @@
 // Copyright (c) 2020 PSForever
 package net.psforever.objects.avatar
 
-import akka.actor.{Actor, ActorRef, Cancellable, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import net.psforever.actors.session.AvatarActor
 import net.psforever.objects.{Player, _}
 import net.psforever.objects.ballistics.{PlayerSource, ResolvedProjectile}
@@ -25,7 +25,6 @@ import services.avatar.{AvatarAction, AvatarServiceMessage}
 import services.local.{LocalAction, LocalServiceMessage}
 import akka.actor.typed
 import scala.concurrent.duration._
-import scala.collection.mutable
 
 class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Command])
     extends Actor
@@ -41,16 +40,6 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
   private[this] val log       = org.log4s.getLogger(player.Name)
   private[this] val damageLog = org.log4s.getLogger(Damageable.LogChannel)
 
-  /** Stamina will be used.  Stamina will be restored. */
-  var staminaRegen: Cancellable = Default.Cancellable
-
-  /**
-    * A collection of timers indexed for the implant in each slot.
-    * Before an implant is ready, it serves as the initialization timer.
-    * After being initialized, it is used as the stamina drain interval when the implant is active.
-    */
-  val implantSlotTimers = mutable.HashMap(0 -> Default.Cancellable, 1 -> Default.Cancellable, 2 -> Default.Cancellable)
-
   /** control agency for the player's locker container (dedicated inventory slot #5) */
   val lockerControlAgent: ActorRef = {
     val locker = player.avatar.locker
@@ -64,8 +53,6 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
   override def postStop(): Unit = {
     lockerControlAgent ! akka.actor.PoisonPill
     player.avatar.locker.Actor = Default.Actor
-    staminaRegen.cancel
-    implantSlotTimers.values.foreach { _.cancel }
   }
 
   def receive: Receive =
@@ -136,7 +123,7 @@ class PlayerControl(player: Player, avatarActor: typed.ActorRef[AvatarActor.Comm
             !player.isAlive && !player.isBackpack &&
             item.Magazine >= 25
           ) {
-            sender ! CommonMessages.Progress(
+            sender() ! CommonMessages.Progress(
               4,
               Players.FinishRevivingPlayer(player, user.Name, item),
               Players.RevivingTickAction(player, user, item)

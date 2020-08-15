@@ -14,7 +14,7 @@ class PropertyOverrideManager extends Actor {
   private var gamePropertyScopes: List[PropertyOverrideMessage.GamePropertyScope] = List()
   lazy private val zoneIds: Iterable[Int]                                         = Zones.zones.map(_.Number)
 
-  override def preStart = {
+  override def preStart() = {
     LoadOverridesFromFile(zoneId = 0) // Global overrides
     for (zoneId <- zoneIds) {
       LoadOverridesFromFile(zoneId)
@@ -25,7 +25,7 @@ class PropertyOverrideManager extends Actor {
 
   override def receive: Receive = {
     case PropertyOverrideManager.GetOverridesMessage => {
-      sender ! gamePropertyScopes
+      sender() ! gamePropertyScopes
     }
     case _ => ;
   }

@@ -82,7 +82,7 @@ object Players {
     if (!iter.hasNext) {
       list
     } else {
-      val slot = iter.next
+      val slot = iter.next()
       slot.Equipment match {
         case Some(equipment) =>
           slot.Equipment = None
@@ -105,7 +105,7 @@ object Players {
     if (!iter.hasNext) {
       list
     } else {
-      val slot = iter.next
+      val slot = iter.next()
       if (slot.Equipment.isEmpty) {
         list.find(item => item.obj.Size == slot.Size) match {
           case Some(obj) =>

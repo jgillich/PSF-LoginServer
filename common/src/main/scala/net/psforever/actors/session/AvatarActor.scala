@@ -210,7 +210,7 @@ object AvatarActor {
 
   final case class AvatarResponse(avatar: Avatar)
 
-  final case class AvatarLoginResponse()
+  final case class AvatarLoginResponse(avatar: Avatar)
 
 }
 
@@ -397,7 +397,7 @@ class AvatarActor(
 
               staminaRegenTimer.cancel()
               staminaRegenTimer = defaultStaminaRegen()
-              replyTo ! AvatarLoginResponse()
+              replyTo ! AvatarLoginResponse(avatar)
             case Failure(e) => log.error(e)("db failure")
           }
           Behaviors.same

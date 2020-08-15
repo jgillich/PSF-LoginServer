@@ -43,7 +43,7 @@ class ZoneHotSpotDisplay(
     context.actorOf(Props(classOf[ZoneHotSpotHistory], zone, dataList, dataBlanking), s"${zone.id}-hotspot-backup")
 
   def receive: Receive = {
-    case _ if sender == projector || sender == backup => ; //catch and disrupt cyclic messaging paths
+    case _ if sender() == projector || sender() == backup => ; //catch and disrupt cyclic messaging paths
     case msg =>
       projector ! msg
       backup ! msg
@@ -90,7 +90,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
     * Cancel all future blanking actions and release the `GalaxyService` hook.
     */
   override def postStop(): Unit = {
-    blanking.cancel
+    blanking.cancel()
     galaxy = ActorRef.noSender
     super.postStop()
   }
@@ -136,7 +136,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
     */
   def Established: Receive = {
     case ZoneHotSpotProjector.UpdateDurationFunction() =>
-      blanking.cancel
+      blanking.cancel()
       UpdateDurationFunction()
       UpdateHotSpots(PlanetSideEmpire.values, hotspots)
       import scala.concurrent.ExecutionContext.Implicits.global
@@ -145,7 +145,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
     case ZoneHotSpotProjector.UpdateMappingFunction() =>
       //remapped hotspots are produced from their `DisplayLocation` determined by the previous function
       //this is different from the many individual activity locations that contributed to that `DisplayLocation`
-      blanking.cancel
+      blanking.cancel()
       UpdateMappingFunction()
       UpdateHotSpots(PlanetSideEmpire.values, hotspots)
       import scala.concurrent.ExecutionContext.Implicits.global
@@ -178,7 +178,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
           UpdateHotSpots(affectedFactions, hotspots)
           if (noPriorHotSpots) {
             import scala.concurrent.ExecutionContext.Implicits.global
-            blanking.cancel
+            blanking.cancel()
             blanking = context.system.scheduler.scheduleOnce(blankingDelay, self, ZoneHotSpotProjector.BlankingPhase())
           }
         }
@@ -189,7 +189,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
       UpdateHotSpots(PlanetSideEmpire.values, hotspots)
 
     case ZoneHotSpotProjector.BlankingPhase() | Zone.HotSpot.Cleanup() =>
-      blanking.cancel
+      blanking.cancel()
       val curr: Long = System.nanoTime
       //blanking dated activity reports
       val changed = hotspots.flatMap(spot => {
@@ -211,12 +211,12 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
       val newSize      = spots.size
       val changesOnMap = hotspots.size - newSize
       log.trace(s"blanking out $changesOnMap hotspots from zone ${zone.id}; $newSize remain active")
-      hotspots.clear
+      hotspots.clear()
       hotspots.insertAll(0, spots)
       //other hotspots still need to be blanked later
       if (spots.nonEmpty) {
         import scala.concurrent.ExecutionContext.Implicits.global
-        blanking.cancel
+        blanking.cancel()
         blanking = context.system.scheduler.scheduleOnce(blankingDelay, self, ZoneHotSpotProjector.BlankingPhase())
       }
       //if hotspots changed, redraw the remaining ones for the groups that changed
@@ -226,7 +226,7 @@ class ZoneHotSpotProjector(zone: Zone, hotspots: ListBuffer[HotSpotInfo], blanki
 
     case Zone.HotSpot.ClearAll() =>
       log.trace(s"blanking out all hotspots from zone ${zone.id} immediately")
-      blanking.cancel
+      blanking.cancel()
       hotspots.clear()
       UpdateHotSpots(PlanetSideEmpire.values, Nil)
 

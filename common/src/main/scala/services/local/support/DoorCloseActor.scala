@@ -35,7 +35,7 @@ class DoorCloseActor() extends Actor {
       }
 
     case DoorCloseActor.TryCloseDoors() =>
-      doorCloserTrigger.cancel
+      doorCloserTrigger.cancel()
       val now: Long                       = System.nanoTime
       val (doorsToClose1, doorsLeftOpen1) = PartitionEntries(openDoors, now)
       val (doorsToClose2, doorsLeftOpen2) = doorsToClose1.partition(entry => {

@@ -23,15 +23,15 @@ import services.support.SupportActor
 import scala.concurrent.duration.Duration
 
 class LocalService(zone: Zone) extends Actor {
-  private val doorCloser   = context.actorOf(Props[DoorCloseActor], s"${zone.id}-local-door-closer")
-  private val hackClearer  = context.actorOf(Props[HackClearActor], s"${zone.id}-local-hack-clearer")
-  private val hackCapturer = context.actorOf(Props[HackCaptureActor], s"${zone.id}-local-hack-capturer")
-  private val engineer     = context.actorOf(Props[DeployableRemover], s"${zone.id}-deployable-remover-agent")
+  private val doorCloser   = context.actorOf(Props[DoorCloseActor](), s"${zone.id}-local-door-closer")
+  private val hackClearer  = context.actorOf(Props[HackClearActor](), s"${zone.id}-local-hack-clearer")
+  private val hackCapturer = context.actorOf(Props[HackCaptureActor](), s"${zone.id}-local-hack-capturer")
+  private val engineer     = context.actorOf(Props[DeployableRemover](), s"${zone.id}-deployable-remover-agent")
   private val teleportDeployment: ActorRef =
-    context.actorOf(Props[RouterTelepadActivation], s"${zone.id}-telepad-activate-agent")
+    context.actorOf(Props[RouterTelepadActivation](), s"${zone.id}-telepad-activate-agent")
   private[this] val log = org.log4s.getLogger
 
-  override def preStart = {
+  override def preStart() = {
     log.trace(s"Awaiting ${zone.id} local events ...")
   }
 
@@ -376,10 +376,10 @@ class LocalService(zone: Zone) extends Actor {
     //synchronized damage calculations
     case Vitality.DamageOn(target: Deployable, damage_func) =>
       val cause = damage_func(target)
-      sender ! Vitality.DamageResolution(target, cause)
+      sender() ! Vitality.DamageResolution(target, cause)
 
     case msg =>
-      log.warn(s"Unhandled message $msg from $sender")
+      log.warn(s"Unhandled message $msg from ${sender()}")
   }
 
   /**

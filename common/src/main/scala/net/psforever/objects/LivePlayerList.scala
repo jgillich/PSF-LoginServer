@@ -41,7 +41,7 @@ private class LivePlayerList {
 
   def Shutdown: List[Avatar] = {
     val list = sessionMap.values.toList
-    sessionMap.clear
+    sessionMap.clear()
     list
   }
 }

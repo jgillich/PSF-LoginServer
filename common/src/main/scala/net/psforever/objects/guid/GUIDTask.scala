@@ -392,7 +392,7 @@ object GUIDTask {
     if (!iter.hasNext) {
       list
     } else {
-      iter.next.Equipment match {
+      iter.next().Equipment match {
         case Some(item) =>
           recursiveVisibleSlotTaskBuilding(iter, func, list :+ func(item))
         case None =>

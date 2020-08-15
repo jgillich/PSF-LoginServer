@@ -15,11 +15,11 @@ import net.psforever.types.{DriveState, PlanetSideGUID}
 import services.{GenericEventBus, RemoverActor, Service}
 
 class VehicleService(zone: Zone) extends Actor {
-  private val vehicleDecon: ActorRef  = context.actorOf(Props[VehicleRemover], s"${zone.id}-vehicle-decon-agent")
-  private val turretUpgrade: ActorRef = context.actorOf(Props[TurretUpgrader], s"${zone.id}-turret-upgrade-agent")
+  private val vehicleDecon: ActorRef  = context.actorOf(Props[VehicleRemover](), s"${zone.id}-vehicle-decon-agent")
+  private val turretUpgrade: ActorRef = context.actorOf(Props[TurretUpgrader](), s"${zone.id}-turret-upgrade-agent")
   private[this] val log               = org.log4s.getLogger
 
-  override def preStart = {
+  override def preStart() = {
     log.trace(s"Awaiting ${zone.id} vehicle events ...")
   }
 
@@ -210,7 +210,7 @@ class VehicleService(zone: Zone) extends Actor {
 
         //unlike other messages, just return to sender, don't publish
         case VehicleAction.UpdateAmsSpawnPoint(zone: Zone) =>
-          sender ! VehicleServiceResponse(
+          sender() ! VehicleServiceResponse(
             s"/$forChannel/Vehicle",
             Service.defaultPlayerGUID,
             VehicleResponse.UpdateAmsSpawnPoint(AmsSpawnPoints(zone))
@@ -385,7 +385,7 @@ class VehicleService(zone: Zone) extends Actor {
       }
 
     case msg =>
-      log.info(s"Unhandled message $msg from $sender")
+      log.info(s"Unhandled message $msg from ${sender()}")
   }
 
   import net.psforever.objects.serverobject.tube.SpawnTube

@@ -36,7 +36,7 @@ class HackClearActor() extends Actor {
       RestartTimer()
 
     case HackClearActor.TryClearHacks() =>
-      clearTrigger.cancel
+      clearTrigger.cancel()
       val now: Long = System.nanoTime
       //TODO we can just walk across the list of doors and extract only the first few entries
       val (unhackObjects, stillHackedObjects) = PartitionEntries(hackedObjects, now)

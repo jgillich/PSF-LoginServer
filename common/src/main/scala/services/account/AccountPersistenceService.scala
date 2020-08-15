@@ -57,17 +57,18 @@ class AccountPersistenceService extends Actor {
 
   /**
     * Retrieve the required system event service hooks.
+    *
     * @see `ServiceManager.LookupResult`
     */
-  override def preStart: Unit = {
+  override def preStart(): Unit = {
     ServiceManager.serviceManager ! ServiceManager.Lookup("squad")
     ServiceManager.serviceManager ! ServiceManager.Lookup("taskResolver")
     log.trace("Awaiting system service hooks ...")
   }
 
-  override def postStop: Unit = {
+  override def postStop(): Unit = {
     accounts.foreach { case (_, monitor) => context.stop(monitor) }
-    accounts.clear
+    accounts.clear()
   }
 
   def receive: Receive = Setup
@@ -83,7 +84,7 @@ class AccountPersistenceService extends Actor {
       (accounts.get(name) match {
         case Some(ref) => ref
         case None      => CreateNewPlayerToken(name)
-      }).tell(msg, sender)
+      }).tell(msg, sender())
 
     case msg @ AccountPersistenceService.Update(name, _, _) =>
       accounts.get(name) match {
@@ -91,7 +92,7 @@ class AccountPersistenceService extends Actor {
           ref ! msg
         case None =>
           log.warn(s"tried to update a player entry for $name that did not yet exist; rebuilding entry ...")
-          CreateNewPlayerToken(name).tell(msg, sender)
+          CreateNewPlayerToken(name).tell(msg, sender())
       }
 
     case msg @ AccountPersistenceService.PersistDelay(name, _) =>
@@ -262,18 +263,18 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
     * Perform logout operations before the persistence monitor finally stops.
     */
   override def postStop(): Unit = {
-    timer.cancel
+    timer.cancel()
     PerformLogout()
   }
 
   def receive: Receive = {
     case AccountPersistenceService.Login(_) =>
-      sender ! (if (kicked) {
-                  PlayerToken.CanNotLogin(name, PlayerToken.DeniedLoginReason.Kicked)
-                } else {
-                  UpdateTimer()
-                  PlayerToken.LoginInfo(name, inZone, lastPosition)
-                })
+      sender() ! (if (kicked) {
+                    PlayerToken.CanNotLogin(name, PlayerToken.DeniedLoginReason.Kicked)
+                  } else {
+                    UpdateTimer()
+                    PlayerToken.LoginInfo(name, inZone, lastPosition)
+                  })
 
     case AccountPersistenceService.Update(_, z, p) if !kicked =>
       inZone = z
@@ -299,7 +300,7 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
         case Some(time) =>
           PerformLogout()
           kickTime = None
-          timer.cancel
+          timer.cancel()
           timer = context.system.scheduler.scheduleOnce(time seconds, self, Logout(name))
         case None =>
           context.parent ! Logout(name)
@@ -313,7 +314,7 @@ class PersistenceMonitor(name: String, squadService: ActorRef, taskResolver: Act
     * Restart the minimum activity timer.
     */
   def UpdateTimer(): Unit = {
-    timer.cancel
+    timer.cancel()
     timer = context.system.scheduler.scheduleOnce(persistTime.getOrElse(60L) seconds, self, Logout(name))
   }
 

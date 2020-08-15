@@ -159,7 +159,7 @@ trait JammableBehavior {
     if (!jammedSound) {
       jammedSound = true
       import scala.concurrent.ExecutionContext.Implicits.global
-      jammeredSoundTimer.cancel
+      jammeredSoundTimer.cancel()
       jammeredSoundTimer =
         context.system.scheduler.scheduleOnce(dur milliseconds, self, JammableUnit.ClearJammeredSound())
     }
@@ -174,7 +174,7 @@ trait JammableBehavior {
     */
   def StartJammeredStatus(target: Any, dur: Int): Unit = {
     JammableObject.Jammed = true
-    jammeredStatusTimer.cancel
+    jammeredStatusTimer.cancel()
     import scala.concurrent.ExecutionContext.Implicits.global
     jammeredStatusTimer =
       context.system.scheduler.scheduleOnce(dur milliseconds, self, JammableUnit.ClearJammeredStatus())
@@ -188,7 +188,7 @@ trait JammableBehavior {
     */
   def CancelJammeredSound(target: Any): Unit = {
     jammedSound = false
-    jammeredSoundTimer.cancel
+    jammeredSoundTimer.cancel()
   }
 
   /**
@@ -199,7 +199,7 @@ trait JammableBehavior {
     */
   def CancelJammeredStatus(target: Any): Unit = {
     JammableObject.Jammed = false
-    jammeredStatusTimer.cancel
+    jammeredStatusTimer.cancel()
   }
 
   val jammableBehavior: Receive = {

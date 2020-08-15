@@ -423,7 +423,8 @@ class SessionActor extends Actor with MDCContextAware {
       session = session.copy(avatar = avatar)
       accountPersistence ! AccountPersistenceService.Login(avatar.name)
 
-    case AvatarActor.AvatarLoginResponse() =>
+    case AvatarActor.AvatarLoginResponse(avatar) =>
+      Deployables.InitializeDeployableQuantities(avatar)
       cluster ! InterstellarClusterService.FilterZones(_ => true, context.self)
 
     case ControlPacket(_, ctrl) =>
@@ -1477,8 +1478,6 @@ class SessionActor extends Actor with MDCContextAware {
       //TODO poll the database for saved zone and coordinates?
       persist = UpdatePersistence(sender())
       deadState = DeadState.RespawnTime
-
-      Deployables.InitializeDeployableQuantities(avatar) //set deployables ui elements
 
       session = session.copy(player = new Player(avatar))
       //xy-coordinates indicate sanctuary spawn bias:
