@@ -595,11 +595,8 @@ class AvatarActor(
           index match {
             case Some(index) =>
               import ctx._
-              val name = ImplantTerminalDefinition.implants.collectFirst {
-                case (name, implant) if implant.implantType == definition.implantType => name
-              }
               ctx
-                .run(query[persistence.Implant].insert(_.name -> lift(name.get), _.avatarId -> lift(avatar.id)))
+                .run(query[persistence.Implant].insert(_.name -> lift(definition.Name), _.avatarId -> lift(avatar.id)))
                 .onComplete {
                   case Success(_) =>
                     avatar = avatar.copy(implants = avatar.implants.updated(index, Some(Implant(definition))))
@@ -635,13 +632,10 @@ class AvatarActor(
           index match {
             case Some(index) =>
               import ctx._
-              val name = ImplantTerminalDefinition.implants.collectFirst {
-                case (name, implant) if implant.implantType == definition.implantType => name
-              }
               ctx
                 .run(
                   query[persistence.Implant]
-                    .filter(_.name == lift(name.get))
+                    .filter(_.name == lift(definition.Name))
                     .filter(_.avatarId == lift(avatar.id))
                     .delete
                 )
@@ -945,7 +939,30 @@ class AvatarActor(
                 session.get.zone.id,
                 AvatarAction.PlanetsideAttributeToAll(session.get.player.GUID, 17, bep)
               )
-              avatar = avatar.copy(bep = bep)
+              // when the level is reduced, take away any implants over the implant slot limit
+              val implants = avatar.implants.zipWithIndex.map {
+                case (implant, index) =>
+                  if (index >= BattleRank.withExperience(bep).implantSlots && implant.isDefined) {
+                    ctx
+                      .run(
+                        query[persistence.Implant]
+                          .filter(_.name == lift(implant.get.definition.Name))
+                          .filter(_.avatarId == lift(avatar.id))
+                          .delete
+                      )
+                      .onComplete {
+                        case Success(_) =>
+                          sessionActor ! SessionActor.SendResponse(
+                            AvatarImplantMessage(session.get.player.GUID, ImplantAction.Remove, index, 0)
+                          )
+                        case Failure(exception) => log.error(exception)("db failure")
+                      }
+                    None
+                  } else {
+                    implant
+                  }
+              }
+              avatar = avatar.copy(bep = bep, implants = implants)
             case Failure(exception) => log.error(exception)("db failure")
           }
           Behaviors.same

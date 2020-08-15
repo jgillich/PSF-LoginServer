@@ -3,6 +3,7 @@ package objects
 
 import akka.actor.{ActorSystem, Props}
 import base.ActorTest
+import net.psforever.objects.avatar.Avatar
 import net.psforever.objects.{Default, GlobalDefinitions, Player}
 import net.psforever.objects.serverobject.CommonMessages
 import net.psforever.objects.serverobject.locks.{IFFLock, IFFLockControl}
@@ -97,6 +98,6 @@ object IFFLockControlTest {
       GlobalDefinitions.building
     )
     lock.Owner.Faction = faction
-    (Player(Avatar("test", faction, CharacterGender.Male, 0, CharacterVoice.Mute)), lock)
+    (Player(Avatar(0, "test", faction, CharacterGender.Male, 0, CharacterVoice.Mute)), lock)
   }
 }

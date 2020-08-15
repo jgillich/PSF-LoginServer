@@ -3,7 +3,7 @@ package objects.terminal
 
 import akka.actor.{ActorSystem, Props}
 import base.ActorTest
-import net.psforever.objects.avatar.Certification
+import net.psforever.objects.avatar.{Avatar, Certification}
 import net.psforever.objects.serverobject.structures.{Building, StructureType}
 import net.psforever.objects.serverobject.terminals.{Terminal, TerminalControl, TerminalDefinition}
 import net.psforever.objects.zones.Zone
@@ -143,6 +143,6 @@ object TerminalControlTest {
       GlobalDefinitions.building
     )
     terminal.Owner.Faction = faction
-    (Player(Avatar("test", faction, CharacterGender.Male, 0, CharacterVoice.Mute)), terminal)
+    (Player(Avatar(0, "test", faction, CharacterGender.Male, 0, CharacterVoice.Mute)), terminal)
   }
 }

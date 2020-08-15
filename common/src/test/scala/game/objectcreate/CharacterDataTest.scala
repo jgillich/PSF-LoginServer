@@ -90,7 +90,9 @@ class CharacterDataTest extends Specification {
               char.command_rank mustEqual 5
               char.implant_effects.length mustEqual 1
               char.implant_effects.head mustEqual ImplantEffects.NoEffects
-              char.cosmetics must beSome(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+              char.cosmetics must beSome(
+                beEqualTo(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+              )
 
               char.unk mustEqual 7
               //short test of inventory items
@@ -274,7 +276,9 @@ class CharacterDataTest extends Specification {
               char.uniform_upgrade mustEqual UniformStyle.ThirdUpgrade
               char.command_rank mustEqual 2
               char.implant_effects.isEmpty mustEqual true
-              char.cosmetics must beSome(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+              char.cosmetics must beSome(
+                beEqualTo(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+              )
               char.unk mustEqual 1
 
               hand mustEqual DrawnSlot.Pistol1

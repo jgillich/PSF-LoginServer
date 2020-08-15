@@ -78,7 +78,7 @@ class ResourceSiloTest extends Specification {
 
 class ResourceSiloControlStartupTest extends ActorTest {
   val serviceManager = ServiceManager.boot(system)
-  serviceManager ! ServiceManager.Register(RandomPool(1).props(Props[TaskResolver]), "taskResolver")
+  serviceManager ! ServiceManager.Register(RandomPool(1).props(Props[TaskResolver]()), "taskResolver")
   val obj = ResourceSilo()
   obj.GUID = PlanetSideGUID(1)
   val probe = TestProbe()
@@ -116,7 +116,7 @@ class ResourceSiloControlUseTest extends ActorTest {
   obj.Actor ! "startup"
 
   val player = Player(
-    new Avatar(0L, "TestCharacter", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
+    new Avatar(0, "TestCharacter", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
   ) //guid=3
   val vehicle = Vehicle(GlobalDefinitions.ant) //guid=4
   val probe   = new TestProbe(system)
@@ -368,7 +368,7 @@ class ResourceSiloControlNoUpdateTest extends ActorTest {
 
 object ResourceSiloTest {
   val player = Player(
-    new Avatar(0L, "TestCharacter", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
+    new Avatar(0, "TestCharacter", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
   )
 
   class ProbedAvatarService(probe: TestProbe) extends Actor {

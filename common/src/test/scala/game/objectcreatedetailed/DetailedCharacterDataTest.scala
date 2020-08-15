@@ -1,14 +1,13 @@
 // Copyright (c) 2017 PSForever
 package game.objectcreatedetailed
 
-import net.psforever.objects.avatar.BattleRank
+import net.psforever.objects.avatar.{BattleRank, Certification, Cosmetic}
 import org.specs2.mutable._
 import net.psforever.packet._
 import net.psforever.packet.game.ObjectCreateDetailedMessage
 import net.psforever.packet.game.objectcreate._
 import net.psforever.types._
 import scodec.bits._
-import net.psforever.objects.avatar.Certification
 
 class DetailedCharacterDataTest extends Specification {
   val string =
@@ -1063,17 +1062,9 @@ class DetailedCharacterDataTest extends Specification {
                     "training_ui",
                     "training_map"
                   )
-                  b.cosmetics match {
-                    case Some(c: Cosmetics) =>
-                      c.Styles mustEqual Set(
-                        PersonalStyle.Helmet,
-                        PersonalStyle.Beret,
-                        PersonalStyle.Sunglasses,
-                        PersonalStyle.Earpiece
-                      )
-                    case None =>
-                      ko
-                  }
+                  b.cosmetics must beSome(
+                    beEqualTo(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+                  )
                   b.unk1.isEmpty mustEqual true
                   b.unk2 mustEqual Nil
                   b.unk3 mustEqual Nil
@@ -1314,18 +1305,9 @@ class DetailedCharacterDataTest extends Specification {
                   )
                   b.unkB mustEqual List()
                   b.unkC mustEqual false
-                  b.cosmetics match {
-                    case Some(c: Cosmetics) =>
-                      c.Styles mustEqual Set(
-                        PersonalStyle.Helmet,
-                        PersonalStyle.Sunglasses,
-                        PersonalStyle.Earpiece,
-                        PersonalStyle.BrimmedCap
-                      )
-                    case None =>
-                      ko
-                  }
-                  b.cosmetics.contains(Cosmetics(true, false, true, true, true)) mustEqual true
+                  b.cosmetics must beSome(
+                    beEqualTo(Set(Cosmetic.NoHelmet, Cosmetic.Sunglasses, Cosmetic.Earpiece, Cosmetic.BrimmedCap))
+                  )
                 case _ =>
                   ko
               }
@@ -2534,7 +2516,7 @@ class DetailedCharacterDataTest extends Specification {
         Nil,
         Nil,
         false,
-        Some(Cosmetics(true, true, true, true, false))
+        Some(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
       )
       val char: Option[Int] => DetailedCharacterData =
         (pad_length: Option[Int]) => DetailedCharacterData(ba, bb(ba.bep, pad_length))(pad_length)
@@ -4000,7 +3982,7 @@ class DetailedCharacterDataTest extends Specification {
         ),
         List(),
         false,
-        Some(Cosmetics(true, false, true, true, true))
+        Some(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
       )
       val char: Option[Int] => DetailedCharacterData =
         (pad_length: Option[Int]) => DetailedCharacterData(ba, bb(ba.bep, pad_length))(pad_length)

@@ -4,7 +4,6 @@ package objects
 import net.psforever.objects.GlobalDefinitions._
 import net.psforever.objects._
 import net.psforever.objects.avatar.{Avatar, BattleRank, Implant}
-import net.psforever.objects.loadouts._
 import net.psforever.objects.definition.ImplantDefinition
 import net.psforever.types.{CharacterGender, CharacterVoice, ImplantType, PlanetSideEmpire}
 import org.specs2.mutable._
@@ -45,26 +44,6 @@ class AvatarTest extends Specification {
     av.copy(cep = -1) must throwA[AssertionError]
   }
 
-  "can tell the difference between avatars" in {
-    (Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual true
-
-    (Avatar(0, "Chord1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual false
-
-    (Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual false
-
-    (Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Female, 0, CharacterVoice.Voice5)) mustEqual false
-
-    (Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 1, CharacterVoice.Voice5)) mustEqual false
-
-    (Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-      Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice4)) mustEqual false
-  }
-
   //refer to ImplantTest.scala for more tests
   "maximum of three implant slots" in {
     val obj = Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
@@ -80,10 +59,10 @@ class AvatarTest extends Specification {
     var obj       = Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
     obj.implants.lift(0).isDefined must beTrue
     obj.implants.length mustEqual 3
-    obj = obj.copy(implants = obj.implants.updated(0, testplant))
+    obj = obj.copy(implants = obj.implants.updated(0, Some(testplant)))
     obj.implants.flatten.find(_.definition.implantType == ImplantType.AdvancedRegen) match {
       case Some(slot) =>
-        slot.definition mustEqual testplant
+        slot.definition mustEqual testplant.definition
       case _ =>
         ko
     }
@@ -92,7 +71,7 @@ class AvatarTest extends Specification {
 
   "can not install the same type of implant twice" in {
     val testplant1 = Implant(new ImplantDefinition(ImplantType.AdvancedRegen))
-    val testplant2 = Implant(new ImplantDefinition(ImplantType.Surge))
+    val testplant2 = Implant(new ImplantDefinition(ImplantType.AdvancedRegen))
     val obj        = Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
     obj.copy(implants = obj.implants.updated(0, Some(testplant1)).updated(1, Some(testplant2))) must throwA[
       AssertionError
@@ -120,14 +99,4 @@ class AvatarTest extends Specification {
     }
   }
 
-  "toString" in {
-    Avatar(
-      0,
-      "Chord",
-      PlanetSideEmpire.TR,
-      CharacterGender.Male,
-      0,
-      CharacterVoice.Voice5
-    ).toString mustEqual "TR Chord"
-  }
 }

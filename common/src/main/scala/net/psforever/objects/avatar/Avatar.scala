@@ -99,6 +99,9 @@ case class Avatar(
     /** Timestamps of when a vehicle or equipment was last purchased */
     useTimes: Map[String, LocalDateTime] = Map()
 ) {
+  assert(bep >= 0)
+  assert(cep >= 0)
+
   val br: BattleRank  = BattleRank.withExperience(bep)
   val cr: CommandRank = CommandRank.withExperience(cep)
 
@@ -178,10 +181,8 @@ case class Avatar(
     * They may or may not be disabled for live applications
     */
   assert(stamina <= maxStamina && stamina >= 0)
-  assert(bep >= 0)
-  assert(cep >= 0)
   assert(head >= 0) // TODO what's the max value?
   assert(implants.length <= 3)
   assert(implants.flatten.map(_.definition.implantType).distinct.length == implants.flatten.length)
-  // assert(br.implantSlots >= implants.flatten.length)
+  assert(br.implantSlots >= implants.flatten.length)
 }

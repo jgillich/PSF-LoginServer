@@ -53,47 +53,67 @@ object GlobalDefinitions {
   /*
   Implants
    */
-  val advanced_regen = new ImplantDefinition(ImplantType.AdvancedRegen)
+  val advanced_regen = new ImplantDefinition(ImplantType.AdvancedRegen) {
+    Name = "advanced_regen"
+  }
   advanced_regen.InitializationDuration = 120
   advanced_regen.StaminaCost = 2
   advanced_regen.CostIntervalDefault = 500
 
-  val targeting = new ImplantDefinition(ImplantType.Targeting)
+  val targeting = new ImplantDefinition(ImplantType.Targeting) {
+    Name = "targeting"
+  }
   targeting.InitializationDuration = 60
 
-  val audio_amplifier = new ImplantDefinition(ImplantType.AudioAmplifier)
+  val audio_amplifier = new ImplantDefinition(ImplantType.AudioAmplifier) {
+    Name = "audio_amplifier"
+  }
   audio_amplifier.InitializationDuration = 60
   audio_amplifier.StaminaCost = 1
   audio_amplifier.CostIntervalDefault = 1000
 
-  val darklight_vision = new ImplantDefinition(ImplantType.DarklightVision)
+  val darklight_vision = new ImplantDefinition(ImplantType.DarklightVision) {
+    Name = "darklight_vision"
+  }
   darklight_vision.InitializationDuration = 60
   darklight_vision.ActivationStaminaCost = 3
   darklight_vision.StaminaCost = 1
   darklight_vision.CostIntervalDefault = 500
 
-  val melee_booster = new ImplantDefinition(ImplantType.MeleeBooster)
+  val melee_booster = new ImplantDefinition(ImplantType.MeleeBooster) {
+    Name = "melee_booster"
+  }
   melee_booster.InitializationDuration = 120
   melee_booster.StaminaCost = 10
 
-  val personal_shield = new ImplantDefinition(ImplantType.PersonalShield)
+  val personal_shield = new ImplantDefinition(ImplantType.PersonalShield) {
+    Name = "personal_shield"
+  }
   personal_shield.InitializationDuration = 120
   personal_shield.StaminaCost = 1
   personal_shield.CostIntervalDefault = 600
 
-  val range_magnifier = new ImplantDefinition(ImplantType.RangeMagnifier)
+  val range_magnifier = new ImplantDefinition(ImplantType.RangeMagnifier) {
+    Name = "range_magnifier"
+  }
   range_magnifier.InitializationDuration = 60
 
-  val second_wind = new ImplantDefinition(ImplantType.SecondWind)
+  val second_wind = new ImplantDefinition(ImplantType.SecondWind) {
+    Name = "second_wind"
+  }
   second_wind.InitializationDuration = 180
 
-  val silent_run = new ImplantDefinition(ImplantType.SilentRun)
+  val silent_run = new ImplantDefinition(ImplantType.SilentRun) {
+    Name = "silent_run"
+  }
   silent_run.InitializationDuration = 90
   silent_run.StaminaCost = 1
   silent_run.CostIntervalDefault = 333
   silent_run.CostIntervalByExoSuitHashMap(ExoSuitType.Agile) = 1000
 
-  val surge = new ImplantDefinition(ImplantType.Surge)
+  val surge = new ImplantDefinition(ImplantType.Surge) {
+    Name = "surge"
+  }
   surge.InitializationDuration = 90
   surge.StaminaCost = 1
   surge.CostIntervalDefault = 1000
