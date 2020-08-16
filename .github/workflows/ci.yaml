@@ -60,6 +60,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
           registry: docker.pkg.github.com
-          repository: ${{ env.$REPOSITORY }}/server
+          repository: ${{ env.REPOSITORY }}/server
           tag_with_sha: true
           tag_with_ref: true
