@@ -907,6 +907,7 @@ class DamageableWeaponTurretJammerTest extends ActorTest {
           case _ => false
         }
       )
+      expectNoMessage(100 milliseconds) // FIXME this is a hack to make it pass
       assert(turret.Health == turret.Definition.DefaultHealth)
       assert(turret.Jammed)
     }

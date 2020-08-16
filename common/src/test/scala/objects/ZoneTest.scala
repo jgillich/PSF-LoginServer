@@ -120,17 +120,6 @@ class ZoneTest extends Specification {
 
 class ZoneActorTest extends ActorTest {
   "Zone" should {
-    "create new number pools before the Actor is started" in {
-      val zone = new Zone("test", new ZoneMap("map6"), 1) {
-        override def SetupNumberPools() = {}
-      }
-      zone.GUID(new NumberPoolHub(new LimitedNumberSource(10)))
-      assert(zone.AddPool("test1", 1 to 2))
-
-      zone.actor = system.spawn(ZoneActor(zone), "test-add-pool-actor") //note: not Init'd yet
-      assert(zone.AddPool("test2", 3 to 4))
-    }
-
     "refuse new number pools after the Actor is started" in {
       val zone = new Zone("test", new ZoneMap("map6"), 1) { override def SetupNumberPools() = {} }
       zone.GUID(new NumberPoolHub(new LimitedNumberSource(40150)))
