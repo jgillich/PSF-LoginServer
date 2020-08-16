@@ -693,7 +693,7 @@ class ChatActor(
                   )
               }
 
-            case (CMT_SETBATTLERANK, _, contents) /* if session.account.gm */ =>
+            case (CMT_SETBATTLERANK, _, contents) if session.account.gm =>
               val buffer = contents.toLowerCase.split("\\s+")
               val (target, rank) = (buffer.lift(0), buffer.lift(1)) match {
                 case (Some(target), Some(rank)) if target == session.avatar.name =>
