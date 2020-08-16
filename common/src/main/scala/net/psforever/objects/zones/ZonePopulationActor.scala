@@ -61,7 +61,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
       PopulationRelease(avatar.id, playerMap) match {
         case Some(tplayer) =>
           PlayerLeave(tplayer)
-          sender() ! Zone.Population.PlayerHasLeft(zone, None)
+          sender() ! Zone.Population.PlayerHasLeft(zone, Some(tplayer))
         case None =>
           sender() ! Zone.Population.PlayerHasLeft(zone, None)
       }
@@ -213,7 +213,7 @@ object ZonePopulationActor {
   }
 
   def PlayerLeave(player: Player): Unit = {
-    player.Actor ! akka.actor.PoisonPill
+    if (player.Actor != null) player.Actor ! akka.actor.PoisonPill
     player.Actor = Default.Actor
   }
 
