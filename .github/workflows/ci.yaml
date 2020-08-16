@@ -55,5 +55,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
           registry: docker.pkg.github.com
-          repository: $GITHUB_REPOSITORY/server
+          repository: ${{github.repository}}/server
           tag_with_sha: true
