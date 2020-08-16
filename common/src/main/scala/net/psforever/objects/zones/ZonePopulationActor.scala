@@ -61,6 +61,7 @@ class ZonePopulationActor(zone: Zone, playerMap: TrieMap[Int, Option[Player]], c
       PopulationRelease(avatar.id, playerMap) match {
         case Some(tplayer) =>
           PlayerLeave(tplayer)
+          sender() ! Zone.Population.PlayerHasLeft(zone, None)
         case None =>
           sender() ! Zone.Population.PlayerHasLeft(zone, None)
       }
