@@ -942,7 +942,7 @@ class DamageableWeaponTurretDestructionTest extends ActorTest {
   val player1Probe = TestProbe()
   player1.Actor = player1Probe.ref
   val player2 =
-    Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
+    Player(Avatar(1, "TestCharacter2", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Mute)) //guid=4
   player2.Spawn()
   val player2Probe = TestProbe()
   player2.Actor = player2Probe.ref

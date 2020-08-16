@@ -691,7 +691,7 @@ class TurretControlBlockMountTest extends ActorTest {
       assert(reply1b.response.isInstanceOf[Mountable.CanMount])
       assert(obj.Seats(0).Occupant.contains(player1))
 
-      val player2 = Player(Avatar(0, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
+      val player2 = Player(Avatar(1, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
       obj.Actor ! Mountable.TryMount(player2, 0)
       val reply2a = receiveOne(200 milliseconds)
       assert(reply2a.isInstanceOf[Mountable.MountMessages])

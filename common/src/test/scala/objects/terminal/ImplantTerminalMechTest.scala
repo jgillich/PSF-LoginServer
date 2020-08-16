@@ -97,7 +97,7 @@ class ImplantTerminalMechControl3Test extends ActorTest {
   "ImplantTerminalMechControl" should {
     "block a player from mounting" in {
       val (player1, mech) = ImplantTerminalMechTest.SetUpAgents(PlanetSideEmpire.TR)
-      val player2         = Player(Avatar(0, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
+      val player2         = Player(Avatar(1, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
 
       mech.Actor ! Mountable.TryMount(player1, 0)
       receiveOne(Duration.create(100, "ms")) //consume reply

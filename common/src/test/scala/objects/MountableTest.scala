@@ -48,7 +48,7 @@ class MountableControl3Test extends ActorTest {
   "MountableControl" should {
     "block a player from mounting" in {
       val player1 = Player(Avatar(0, "test1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
-      val player2 = Player(Avatar(0, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
+      val player2 = Player(Avatar(1, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute))
       val obj     = new MountableTest.MountableTestObject
       obj.Actor = system.actorOf(Props(classOf[MountableTest.MountableTestControl], obj), "mountable")
       obj.Actor ! Mountable.TryMount(player1, 0)

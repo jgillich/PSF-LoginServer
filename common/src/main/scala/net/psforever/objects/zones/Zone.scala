@@ -526,7 +526,7 @@ class Zone(val id: String, val map: ZoneMap, zoneNumber: Int) {
 
   def Players: List[Avatar] = players.values.flatten.map(_.avatar).toList
 
-  def LivePlayers: List[Player] = players.values.collect({ case Some(tplayer) => tplayer }).toList
+  def LivePlayers: List[Player] = players.values.flatten.toList
 
   def Corpses: List[Player] = corpses.toList
 

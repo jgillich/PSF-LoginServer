@@ -1289,6 +1289,7 @@ class SessionActor extends Actor with MDCContextAware {
     case NewPlayerLoaded(tplayer) =>
       //new zone
       log.info(s"Player ${tplayer.Name} has been loaded")
+      tplayer.avatar = avatar
       session = session.copy(player = tplayer)
       //LoadMapMessage causes the client to send BeginZoningMessage, eventually leading to SetCurrentAvatar
       val weaponsEnabled =
@@ -1322,6 +1323,7 @@ class SessionActor extends Actor with MDCContextAware {
     case PlayerLoaded(tplayer) =>
       //same zone
       log.info(s"Player ${tplayer.Name} will respawn")
+      tplayer.avatar = avatar
       session = session.copy(player = tplayer)
       setupAvatarFunc()
       //interimUngunnedVehicle should have been setup by setupAvatarFunc, if it is applicable
