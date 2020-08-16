@@ -1019,5 +1019,5 @@ object VehicleTest {
   import net.psforever.types.{CharacterGender, PlanetSideEmpire}
 
   val avatar1 = Avatar(0, "test1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
-  val avatar2 = Avatar(0, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
+  val avatar2 = Avatar(1, "test2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Mute)
 }

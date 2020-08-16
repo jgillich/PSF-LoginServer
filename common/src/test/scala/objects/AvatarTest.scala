@@ -56,8 +56,16 @@ class AvatarTest extends Specification {
 
   "can install an implant" in {
     val testplant = Implant(new ImplantDefinition(ImplantType.AdvancedRegen))
-    var obj       = Avatar(0, "Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
-    obj.implants.lift(0).isDefined must beTrue
+    var obj = Avatar(
+      0,
+      "Chord",
+      PlanetSideEmpire.TR,
+      CharacterGender.Male,
+      0,
+      CharacterVoice.Voice5,
+      bep = BattleRank.BR6.experience
+    )
+    obj.implants.nonEmpty must beTrue
     obj.implants.length mustEqual 3
     obj = obj.copy(implants = obj.implants.updated(0, Some(testplant)))
     obj.implants.flatten.find(_.definition.implantType == ImplantType.AdvancedRegen) match {

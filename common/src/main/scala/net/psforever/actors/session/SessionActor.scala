@@ -424,6 +424,7 @@ class SessionActor extends Actor with MDCContextAware {
       accountPersistence ! AccountPersistenceService.Login(avatar.name)
 
     case AvatarActor.AvatarLoginResponse(avatar) =>
+      session = session.copy(avatar = avatar)
       Deployables.InitializeDeployableQuantities(avatar)
       cluster ! InterstellarClusterService.FilterZones(_ => true, context.self)
 

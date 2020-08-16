@@ -41,26 +41,6 @@ class PlayerTest extends Specification {
       obj.Cloaked mustEqual true
     }
 
-    "different players" in {
-      (TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual true
-
-      (TestPlayer("Chord1", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord2", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual false
-
-      (TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord", PlanetSideEmpire.NC, CharacterGender.Male, 0, CharacterVoice.Voice5)) mustEqual false
-
-      (TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Female, 0, CharacterVoice.Voice5)) mustEqual false
-
-      (TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 1, CharacterVoice.Voice5)) mustEqual false
-
-      (TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5) ==
-        TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice4)) mustEqual false
-    }
-
     "(re)spawn" in {
       val obj = TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
       obj.isAlive mustEqual false
@@ -440,15 +420,6 @@ class PlayerTest extends Specification {
       obj.UsingSpecial mustEqual SpecialExoSuitDefinition.Mode.Normal
       obj.ExoSuit = ExoSuitType.MAX
       obj.UsingSpecial != test mustEqual true
-    }
-
-    "toString" in {
-      val obj = TestPlayer("Chord", PlanetSideEmpire.TR, CharacterGender.Male, 0, CharacterVoice.Voice5)
-      obj.toString mustEqual "TR Chord 0/100 0/50"
-
-      obj.GUID = PlanetSideGUID(455)
-      obj.Continent = "z3"
-      obj.toString mustEqual "TR Chord z3-455 0/100 0/50"
     }
   }
 }

@@ -3982,7 +3982,7 @@ class DetailedCharacterDataTest extends Specification {
         ),
         List(),
         false,
-        Some(Set(Cosmetic.NoHelmet, Cosmetic.Beret, Cosmetic.Sunglasses, Cosmetic.Earpiece))
+        Some(Set(Cosmetic.NoHelmet, Cosmetic.Sunglasses, Cosmetic.Earpiece, Cosmetic.BrimmedCap))
       )
       val char: Option[Int] => DetailedCharacterData =
         (pad_length: Option[Int]) => DetailedCharacterData(ba, bb(ba.bep, pad_length))(pad_length)

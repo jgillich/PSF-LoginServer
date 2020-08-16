@@ -19,7 +19,6 @@ import net.psforever.objects.definition.{
 import net.psforever.objects.equipment.Equipment
 import net.psforever.objects.inventory.InventoryItem
 import net.psforever.objects.loadouts.{InfantryLoadout, Loadout}
-import net.psforever.objects.serverobject.terminals.ImplantTerminalDefinition
 import net.psforever.objects.{
   Account,
   AmmoBox,
@@ -627,7 +626,6 @@ class AvatarActor(
           // TODO there used to be a terminal check here, do we really need it?
           val index = avatar.implants.zipWithIndex.collectFirst {
             case (Some(implant), index) if implant.definition.implantType == definition.implantType => index
-            case (None, index) if index <= avatar.br.implantSlots                                   => index
           }
           index match {
             case Some(index) =>

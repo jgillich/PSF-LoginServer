@@ -37,7 +37,7 @@ class ProximityTest extends Specification {
       avatar1.Spawn()
       avatar1.Health = 50
       val avatar2 =
-        Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.VS, CharacterGender.Female, 1, CharacterVoice.Voice1))
+        Player(Avatar(1, "TestCharacter2", PlanetSideEmpire.VS, CharacterGender.Female, 1, CharacterVoice.Voice1))
       avatar2.Spawn()
       avatar2.Health = 50
 
@@ -55,7 +55,7 @@ class ProximityTest extends Specification {
       avatar1.Spawn()
       avatar1.Health = 50
       val avatar2 =
-        Player(Avatar(0, "TestCharacter2", PlanetSideEmpire.VS, CharacterGender.Female, 1, CharacterVoice.Voice1))
+        Player(Avatar(1, "TestCharacter2", PlanetSideEmpire.VS, CharacterGender.Female, 1, CharacterVoice.Voice1))
       avatar2.Spawn()
       avatar2.Health = 50
 
