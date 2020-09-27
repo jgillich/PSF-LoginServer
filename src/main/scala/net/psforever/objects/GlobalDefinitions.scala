@@ -2199,7 +2199,7 @@ object GlobalDefinitions {
     bullet_9mm_AP_projectile.Name = "9mmbullet_AP_projectile"
     // TODO for later, maybe : set_resource_parent 9mmbullet_AP_projectile game_objects 9mmbullet_projectile
     bullet_9mm_AP_projectile.Damage0 = 10
-    bullet_9mm_AP_projectile.Damage1 = 15
+    bullet_9mm_AP_projectile.Damage1 = 20 // original value is 15
     bullet_9mm_AP_projectile.ProjectileDamageType = DamageType.Direct
     bullet_9mm_AP_projectile.DegradeDelay = 0.15f
     bullet_9mm_AP_projectile.DegradeMultiplier = 0.25f
@@ -2210,7 +2210,7 @@ object GlobalDefinitions {
 
     bullet_9mm_projectile.Name = "9mmbullet_projectile"
     bullet_9mm_projectile.Damage0 = 18
-    bullet_9mm_projectile.Damage1 = 10
+    bullet_9mm_projectile.Damage1 = 15 // original value is 10
     bullet_9mm_projectile.ProjectileDamageType = DamageType.Direct
     bullet_9mm_projectile.DegradeDelay = 0.15f
     bullet_9mm_projectile.DegradeMultiplier = 0.25f
@@ -2504,7 +2504,7 @@ object GlobalDefinitions {
 
     energy_cell_projectile.Name = "energy_cell_projectile"
     energy_cell_projectile.Damage0 = 18
-    energy_cell_projectile.Damage1 = 10
+    energy_cell_projectile.Damage1 = 15 // original value is 10
     energy_cell_projectile.ProjectileDamageType = DamageType.Direct
     energy_cell_projectile.DegradeDelay = 0.05f
     energy_cell_projectile.DegradeMultiplier = 0.4f
@@ -2544,7 +2544,7 @@ object GlobalDefinitions {
     enhanced_energy_cell_projectile.Name = "enhanced_energy_cell_projectile"
     // TODO for later, maybe : set_resource_parent enhanced_energy_cell_projectile game_objects energy_cell_projectile
     enhanced_energy_cell_projectile.Damage0 = 7
-    enhanced_energy_cell_projectile.Damage1 = 15
+    enhanced_energy_cell_projectile.Damage1 = 20 // original value is 15
     enhanced_energy_cell_projectile.ProjectileDamageType = DamageType.Direct
     enhanced_energy_cell_projectile.DegradeDelay = 0.05f
     enhanced_energy_cell_projectile.DegradeMultiplier = 0.4f
@@ -3083,10 +3083,10 @@ object GlobalDefinitions {
 
     lasher_projectile.Name = "lasher_projectile"
     lasher_projectile.Damage0 = 30
-    lasher_projectile.Damage1 = 15
-    lasher_projectile.Damage2 = 15
-    lasher_projectile.Damage3 = 12
-    lasher_projectile.Damage4 = 12
+    lasher_projectile.Damage1 = 25 // original value is 15
+    lasher_projectile.Damage2 = 25 // original value is 15
+    lasher_projectile.Damage3 = 28 // original value is 12
+    lasher_projectile.Damage4 = 28 // original value is 12
     lasher_projectile.ProjectileDamageType = DamageType.Direct
     lasher_projectile.DegradeDelay = 0.012f
     lasher_projectile.DegradeMultiplier = 0.3f
@@ -3101,10 +3101,10 @@ object GlobalDefinitions {
 
     lasher_projectile_ap.Name = "lasher_projectile_ap"
     lasher_projectile_ap.Damage0 = 12
-    lasher_projectile_ap.Damage1 = 25
-    lasher_projectile_ap.Damage2 = 25
-    lasher_projectile_ap.Damage3 = 28
-    lasher_projectile_ap.Damage4 = 28
+    lasher_projectile_ap.Damage1 = 35 // original value is 25
+    lasher_projectile_ap.Damage2 = 35 // original value is 25
+    lasher_projectile_ap.Damage3 = 44 // original value is 28
+    lasher_projectile_ap.Damage4 = 44 // original value is 28
     lasher_projectile_ap.ProjectileDamageType = DamageType.Direct
     lasher_projectile_ap.DegradeDelay = 0.012f
     lasher_projectile_ap.DegradeMultiplier = 0.3f
@@ -3669,7 +3669,7 @@ object GlobalDefinitions {
     pulsar_ap_projectile.Name = "pulsar_ap_projectile"
     // TODO for later, maybe : set_resource_parent pulsar_ap_projectile game_objects pulsar_projectile
     pulsar_ap_projectile.Damage0 = 7
-    pulsar_ap_projectile.Damage1 = 15
+    pulsar_ap_projectile.Damage1 = 20 // original value is 10
     pulsar_ap_projectile.ProjectileDamageType = DamageType.Direct
     pulsar_ap_projectile.DegradeDelay = 0.1f
     pulsar_ap_projectile.DegradeMultiplier = 0.5f
@@ -3680,7 +3680,7 @@ object GlobalDefinitions {
 
     pulsar_projectile.Name = "pulsar_projectile"
     pulsar_projectile.Damage0 = 20
-    pulsar_projectile.Damage1 = 10
+    pulsar_projectile.Damage1 = 15 // original value is 10
     pulsar_projectile.ProjectileDamageType = DamageType.Direct
     pulsar_projectile.DegradeDelay = 0.1f
     pulsar_projectile.DegradeMultiplier = 0.4f
@@ -3700,7 +3700,7 @@ object GlobalDefinitions {
     ProjectileDefinition.CalculateDerivedFields(quasar_projectile)
 
     radiator_grenade_projectile.Name = "radiator_grenade_projectile" // Todo : Radiator damages ?
-    radiator_grenade_projectile.GrenadeProjectile = true //not really, but technically yes
+    radiator_grenade_projectile.GrenadeProjectile = true             //not really, but technically yes
     radiator_grenade_projectile.ProjectileDamageType = DamageType.Direct
     radiator_grenade_projectile.InitialVelocity = 30
     radiator_grenade_projectile.Lifespan = 3f
@@ -3803,7 +3803,7 @@ object GlobalDefinitions {
     shotgun_shell_AP_projectile.Name = "shotgun_shell_AP_projectile"
     // TODO for later, maybe : set_resource_parent shotgun_shell_AP_projectile game_objects shotgun_shell_projectile
     shotgun_shell_AP_projectile.Damage0 = 5
-    shotgun_shell_AP_projectile.Damage1 = 10
+    shotgun_shell_AP_projectile.Damage1 = 15 // original value is 10
     shotgun_shell_AP_projectile.ProjectileDamageType = DamageType.Direct
     shotgun_shell_AP_projectile.InitialVelocity = 400
     shotgun_shell_AP_projectile.Lifespan = 0.25f
@@ -3812,7 +3812,7 @@ object GlobalDefinitions {
 
     shotgun_shell_projectile.Name = "shotgun_shell_projectile"
     shotgun_shell_projectile.Damage0 = 12
-    shotgun_shell_projectile.Damage1 = 5
+    shotgun_shell_projectile.Damage1 = 10 // original value is 5
     shotgun_shell_projectile.ProjectileDamageType = DamageType.Direct
     shotgun_shell_projectile.InitialVelocity = 400
     shotgun_shell_projectile.Lifespan = 0.25f
@@ -4709,7 +4709,7 @@ object GlobalDefinitions {
     pellet_gun.FireModes.head.AmmoTypeIndices += 0
     pellet_gun.FireModes.head.AmmoSlotIndex = 0
     pellet_gun.FireModes.head.Magazine = 1 //what is this?
-    pellet_gun.FireModes.head.Chamber = 8 //1 shell * 8 pellets = 8
+    pellet_gun.FireModes.head.Chamber = 8  //1 shell * 8 pellets = 8
     pellet_gun.Tile = InventoryTile.Tile63
 
     six_shooter.Name = "six_shooter"
